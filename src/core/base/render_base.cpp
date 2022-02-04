@@ -47,6 +47,8 @@
 #include "sound.h"
 #include "graphics.h"
 
+#include "controls.h"
+
 #ifdef USE_SCREENSHOTS_AND_RECS
 #include <deque>
 #endif
@@ -144,6 +146,98 @@ void AbstractRender_t::close()
 #ifdef USE_SCREENSHOTS_AND_RECS
     m_gif->quit();
 #endif
+}
+
+void AbstractRender_t::repaint()
+{
+#ifdef USE_RENDER_BLOCKING
+    if(m_blockRender)
+        return;
+#endif
+
+    flushRenderQueue();
+
+    bool o_directRender = m_directRender;
+
+    m_directRender = true;
+
+    setTargetScreen();
+
+#ifdef USE_SCREENSHOTS_AND_RECS
+    processRecorder();
+#endif
+
+#ifdef USE_DRAW_BATTERY_STATUS
+    drawBatteryStatus();
+#endif
+
+    textureToScreen();
+
+    Controls::RenderTouchControls();
+
+    m_directRender = o_directRender;
+
+    finalizeRender();
+}
+
+void AbstractRender_t::flushRenderQueue()
+{
+    m_renderQueue.sort();
+
+    for(const int32_t& call_index : m_renderQueue.m_indices)
+    {
+        int16_t depth = (uint16_t)(((uint32_t)call_index >> 16) & UINT16_MAX); // gets the upper 16 bits
+        uint16_t index = call_index & UINT16_MAX; // gets the lower 16 bits
+
+        executeRender(m_renderQueue.m_calls[index], depth);
+    }
+
+    m_renderQueue.clear();
+}
+
+void AbstractRender_t::resetViewport()
+{
+    flushRenderQueue();
+
+    updateViewport();
+
+    m_viewport_enabled = false;
+
+    updateViewportInternal();
+}
+
+void AbstractRender_t::setViewport(int x, int y, int w, int h)
+{
+    flushRenderQueue();
+
+    m_viewport_enabled = true;
+    m_viewport_x = x;
+    m_viewport_y = y;
+    m_viewport_w = w;
+    m_viewport_h = h;
+
+    updateViewportInternal();
+}
+
+void AbstractRender_t::offsetViewport(int x, int y)
+{
+    if(m_viewport_offset_x != x || m_viewport_offset_y != y)
+    {
+        m_viewport_offset_x_cur = x;
+        m_viewport_offset_y_cur = y;
+        m_viewport_offset_x = m_viewport_offset_ignore ? 0 : m_viewport_offset_x_cur;
+        m_viewport_offset_y = m_viewport_offset_ignore ? 0 : m_viewport_offset_y_cur;
+    }
+}
+
+void AbstractRender_t::offsetViewportIgnore(bool en)
+{
+    if(m_viewport_offset_ignore != en)
+    {
+        m_viewport_offset_x = en ? 0 : m_viewport_offset_x_cur;
+        m_viewport_offset_y = en ? 0 : m_viewport_offset_y_cur;
+    }
+    m_viewport_offset_ignore = en;
 }
 
 StdPicture AbstractRender_t::LoadPicture(const std::string &path,
@@ -404,15 +498,15 @@ void AbstractRender_t::lazyLoad(StdPicture &target)
 
     RGBQUAD upperColor;
     FreeImage_GetPixelColor(sourceImage, 0, 0, &upperColor);
-    target.ColorUpper.r = float(upperColor.rgbRed) / 255.0f;
-    target.ColorUpper.b = float(upperColor.rgbBlue) / 255.0f;
-    target.ColorUpper.g = float(upperColor.rgbGreen) / 255.0f;
+    target.ColorUpper.r = upperColor.rgbRed;
+    target.ColorUpper.b = upperColor.rgbBlue;
+    target.ColorUpper.g = upperColor.rgbGreen;
 
     RGBQUAD lowerColor;
     FreeImage_GetPixelColor(sourceImage, 0, static_cast<unsigned int>(h - 1), &lowerColor);
-    target.ColorLower.r = float(lowerColor.rgbRed) / 255.0f;
-    target.ColorLower.b = float(lowerColor.rgbBlue) / 255.0f;
-    target.ColorLower.g = float(lowerColor.rgbGreen) / 255.0f;
+    target.ColorLower.r = lowerColor.rgbRed;
+    target.ColorLower.b = lowerColor.rgbBlue;
+    target.ColorLower.g = lowerColor.rgbGreen;
 
     if(target.l.colorKey) // Apply transparent color for key pixels
     {
@@ -604,6 +698,355 @@ void AbstractRender_t::drawBatteryStatus()
 }
 #endif // USE_DRAW_BATTERY_STATUS
 
+
+// render features
+
+void AbstractRender_t::renderRect(int x, int y, int w, int h, float red, float green, float blue, float alpha, bool filled)
+{
+#ifdef USE_RENDER_BLOCKING
+    SDL_assert(!m_blockRender);
+#endif
+
+    RenderCall_t tempCall;
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+
+    call.type = RenderCallType::rect;
+    call.xDst = x + m_viewport_offset_x;
+    call.yDst = y + m_viewport_offset_y;
+    call.wDst = w;
+    call.hDst = h;
+
+    call.r = static_cast<unsigned char>(255.f * red);
+    call.g = static_cast<unsigned char>(255.f * green);
+    call.b = static_cast<unsigned char>(255.f * blue);
+    call.a = static_cast<unsigned char>(255.f * alpha);
+
+    if(filled)
+        call.features = RenderFeatures::filled;
+    else
+        call.features = 0;
+
+    if(m_directRender)
+        executeRender(call, 0);
+}
+
+void AbstractRender_t::renderRectBR(int _left, int _top, int _right, int _bottom, float red, float green, float blue, float alpha)
+{
+#ifdef USE_RENDER_BLOCKING
+    SDL_assert(!m_blockRender);
+#endif
+
+    RenderCall_t tempCall;
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+
+    call.type = RenderCallType::rect;
+    call.xDst = _left + m_viewport_offset_x;
+    call.yDst = _top + m_viewport_offset_y;
+    call.wDst = _right - _left;
+    call.hDst = _bottom - _top;
+
+    call.r = static_cast<unsigned char>(255.f * red);
+    call.g = static_cast<unsigned char>(255.f * green);
+    call.b = static_cast<unsigned char>(255.f * blue);
+    call.a = static_cast<unsigned char>(255.f * alpha);
+
+    call.features = RenderFeatures::filled;
+
+    if(m_directRender)
+        executeRender(call, 0);
+}
+
+void AbstractRender_t::renderCircle(int cx, int cy, int radius, float red, float green, float blue, float alpha, bool filled)
+{
+#ifdef USE_RENDER_BLOCKING
+    SDL_assert(!m_blockRender);
+#endif
+
+    if(radius <= 0)
+        return; // Nothing to draw
+
+    RenderCall_t tempCall;
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+
+    call.type = RenderCallType::circle;
+    call.xDst = cx + m_viewport_offset_x;
+    call.yDst = cy + m_viewport_offset_y;
+    call.radius = radius;
+
+    call.r = static_cast<unsigned char>(255.f * red);
+    call.g = static_cast<unsigned char>(255.f * green);
+    call.b = static_cast<unsigned char>(255.f * blue);
+    call.a = static_cast<unsigned char>(255.f * alpha);
+
+    if(filled)
+        call.features = RenderFeatures::filled;
+    else
+        call.features = 0;
+
+    if(m_directRender)
+        executeRender(call, 0);
+}
+
+void AbstractRender_t::renderCircleHole(int cx, int cy, int radius, float red, float green, float blue, float alpha)
+{
+#ifdef USE_RENDER_BLOCKING
+    SDL_assert(!m_blockRender);
+#endif
+
+    if(radius <= 0)
+        return; // Nothing to draw
+
+    RenderCall_t tempCall;
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+
+    call.type = RenderCallType::circle_hole;
+    call.xDst = cx + m_viewport_offset_x;
+    call.yDst = cy + m_viewport_offset_y;
+    call.radius = radius;
+
+    call.r = static_cast<unsigned char>(255.f * red);
+    call.g = static_cast<unsigned char>(255.f * green);
+    call.b = static_cast<unsigned char>(255.f * blue);
+    call.a = static_cast<unsigned char>(255.f * alpha);
+
+    if(m_directRender)
+        executeRender(call, 0);
+}
+
+void AbstractRender_t::renderTextureScaleEx(double xDstD, double yDstD, double wDstD, double hDstD,
+                                       StdPicture &tx,
+                                       int xSrc, int ySrc,
+                                       int wSrc, int hSrc,
+                                       double rotateAngle, FPoint_t *center, unsigned int flip,
+                                       float red, float green, float blue, float alpha)
+{
+#ifdef USE_RENDER_BLOCKING
+    SDL_assert(!m_blockRender);
+#endif
+    if(!tx.inited)
+        return;
+
+    RenderCall_t tempCall;
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+
+    call.type = RenderCallType::texture;
+    call.texture = &tx;
+
+    call.xDst = Maths::iRound(xDstD) + m_viewport_offset_x;
+    call.yDst = Maths::iRound(yDstD) + m_viewport_offset_y;
+    call.wDst = Maths::iRound(wDstD);
+    call.hDst = Maths::iRound(hDstD);
+
+    call.xSrc = xSrc;
+    call.ySrc = ySrc;
+    call.wSrc = wSrc;
+    call.hSrc = hSrc;
+
+    call.r = static_cast<unsigned char>(255.f * red);
+    call.g = static_cast<unsigned char>(255.f * green);
+    call.b = static_cast<unsigned char>(255.f * blue);
+    call.a = static_cast<unsigned char>(255.f * alpha);
+
+    call.features = (flip & 3) | RenderFeatures::color | RenderFeatures::src_rect
+        | RenderFeatures::scaling;
+
+    if(rotateAngle != 0.)
+    {
+        call.features |= RenderFeatures::rotation;
+        call.angle = (uint16_t)(std::fmod(rotateAngle, 360.) * (65536. / 360.));
+
+        // calculate new offset
+        if(center)
+        {
+            double orig_offsetX = wDstD / 2 - center->x;
+            double orig_offsetY = hDstD / 2 - center->y;
+            double sin_theta = -sin(rotateAngle * PI / 180.);
+            double cos_theta = cos(rotateAngle * PI / 180.);
+
+            double rot_offsetX = orig_offsetX * cos_theta - orig_offsetY * sin_theta;
+            double rot_offsetY = orig_offsetX * sin_theta + orig_offsetY * cos_theta;
+
+            double shiftX = rot_offsetX - orig_offsetX;
+            double shiftY = rot_offsetY - orig_offsetY;
+
+            call.xDst = Maths::iRound(xDstD + shiftX) + m_viewport_offset_x;
+            call.yDst = Maths::iRound(yDstD + shiftY) + m_viewport_offset_y;
+        }
+    }
+
+    if(m_directRender)
+        executeRender(call, 0);
+}
+
+void AbstractRender_t::renderTextureScale(double xDst, double yDst, double wDst, double hDst,
+                                     StdPicture &tx,
+                                     float red, float green, float blue, float alpha)
+{
+#ifdef USE_RENDER_BLOCKING
+    SDL_assert(!m_blockRender);
+#endif
+
+    if(!tx.inited)
+        return;
+
+    RenderCall_t tempCall;
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+
+    call.type = RenderCallType::texture;
+    call.texture = &tx;
+
+    call.xDst = Maths::iRound(xDst) + m_viewport_offset_x;
+    call.yDst = Maths::iRound(yDst) + m_viewport_offset_y;
+    call.wDst = Maths::iRound(wDst);
+    call.hDst = Maths::iRound(hDst);
+
+    call.r = static_cast<unsigned char>(255.f * red);
+    call.g = static_cast<unsigned char>(255.f * green);
+    call.b = static_cast<unsigned char>(255.f * blue);
+    call.a = static_cast<unsigned char>(255.f * alpha);
+
+    call.features = RenderFeatures::color | RenderFeatures::scaling;
+
+    if(m_directRender)
+        executeRender(call, 0);
+}
+
+void AbstractRender_t::renderTexture(double xDstD, double yDstD, double wDstD, double hDstD,
+                                StdPicture &tx,
+                                int xSrc, int ySrc,
+                                float red, float green, float blue, float alpha)
+{
+#ifdef USE_RENDER_BLOCKING
+    SDL_assert(!m_blockRender);
+#endif
+    if(!tx.inited)
+        return;
+
+    int xDst = Maths::iRound(xDstD);
+    int yDst = Maths::iRound(yDstD);
+    int wDst = Maths::iRound(wDstD);
+    int hDst = Maths::iRound(hDstD);
+
+    RenderCall_t tempCall;
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+
+    call.type = RenderCallType::texture;
+    call.texture = &tx;
+
+    call.xDst = xDst + m_viewport_offset_x;
+    call.yDst = yDst + m_viewport_offset_y;
+
+    call.wSrc = wDst;
+    call.hSrc = hDst;
+
+    call.xSrc = xSrc;
+    call.ySrc = ySrc;
+
+    call.r = static_cast<unsigned char>(255.f * red);
+    call.g = static_cast<unsigned char>(255.f * green);
+    call.b = static_cast<unsigned char>(255.f * blue);
+    call.a = static_cast<unsigned char>(255.f * alpha);
+
+    call.features = RenderFeatures::color | RenderFeatures::src_rect;
+
+    if(m_directRender)
+        executeRender(call, 0);
+}
+
+void AbstractRender_t::renderTextureFL(double xDstD, double yDstD, double wDstD, double hDstD,
+                                  StdPicture &tx,
+                                  int xSrc, int ySrc,
+                                  double rotateAngle, FPoint_t *center, unsigned int flip,
+                                  float red, float green, float blue, float alpha)
+{
+#ifdef USE_RENDER_BLOCKING
+    SDL_assert(!m_blockRender);
+#endif
+    if(!tx.inited)
+        return;
+
+    int xDst = Maths::iRound(xDstD);
+    int yDst = Maths::iRound(yDstD);
+    int wDst = Maths::iRound(wDstD);
+    int hDst = Maths::iRound(hDstD);
+
+    RenderCall_t tempCall;
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+
+    call.type = RenderCallType::texture;
+    call.texture = &tx;
+
+    call.xDst = xDst + m_viewport_offset_x;
+    call.yDst = yDst + m_viewport_offset_y;
+
+    call.xSrc = xSrc;
+    call.ySrc = ySrc;
+
+    call.wSrc = wDst;
+    call.hSrc = hDst;
+
+    call.r = static_cast<unsigned char>(255.f * red);
+    call.g = static_cast<unsigned char>(255.f * green);
+    call.b = static_cast<unsigned char>(255.f * blue);
+    call.a = static_cast<unsigned char>(255.f * alpha);
+
+    call.features = (flip & 3) | RenderFeatures::color | RenderFeatures::src_rect;
+
+    if(rotateAngle != 0.)
+    {
+        call.features |= RenderFeatures::rotation;
+        call.angle = (uint16_t)(std::fmod(rotateAngle, 360.) * (65536. / 360.));
+
+        // calculate new offset
+        if(center)
+        {
+            double orig_offsetX = wDstD / 2 - center->x;
+            double orig_offsetY = hDstD / 2 - center->y;
+            double sin_theta = -sin(rotateAngle * PI / 180.);
+            double cos_theta = cos(rotateAngle * PI / 180.);
+
+            double rot_offsetX = orig_offsetX * cos_theta - orig_offsetY * sin_theta;
+            double rot_offsetY = orig_offsetX * sin_theta + orig_offsetY * cos_theta;
+
+            double shiftX = rot_offsetX - orig_offsetX;
+            double shiftY = rot_offsetY - orig_offsetY;
+
+            call.xDst = Maths::iRound(xDstD + shiftX) + m_viewport_offset_x;
+            call.yDst = Maths::iRound(yDstD + shiftY) + m_viewport_offset_y;
+        }
+    }
+
+    if(m_directRender)
+        executeRender(call, 0);
+}
+
+void AbstractRender_t::renderTexture(float xDst, float yDst,
+                                StdPicture &tx,
+                                float red, float green, float blue, float alpha)
+{
+#ifdef USE_RENDER_BLOCKING
+    SDL_assert(!m_blockRender);
+#endif
+
+    if(!tx.inited)
+        return;
+
+    RenderCall_t tempCall;
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+
+    call.type = RenderCallType::texture;
+    call.texture = &tx;
+
+    call.xDst = Maths::iRound(xDst) + m_viewport_offset_x;
+    call.yDst = Maths::iRound(yDst) + m_viewport_offset_y;
+
+    call.r = static_cast<unsigned char>(255.f * red);
+    call.g = static_cast<unsigned char>(255.f * green);
+    call.b = static_cast<unsigned char>(255.f * blue);
+    call.a = static_cast<unsigned char>(255.f * alpha);
+
+    call.features = RenderFeatures::color;
+}
 
 /* --------------- Screenshots and GIF recording (not for Emscripten!) ----------------- */
 #ifdef USE_SCREENSHOTS_AND_RECS

@@ -23,6 +23,9 @@
 #define ABTRACTRENDER_T_H
 
 #include <string>
+#include <vector>
+#include <algorithm>
+#include <SDL2/SDL_assert.h>
 
 #include "std_picture.h"
 
@@ -58,6 +61,73 @@ struct FPoint_t
     float y;
 };
 
+enum class RenderCallType : uint8_t
+{
+    texture,
+    rect,
+    circle,
+    circle_hole
+};
+
+namespace RenderFeatures
+{
+    constexpr uint8_t flip_X = 1;
+    constexpr uint8_t flip_Y = 2;
+    constexpr uint8_t color = 4;
+    constexpr uint8_t src_rect = 8;
+    constexpr uint8_t scaling = 16;
+    constexpr uint8_t rotation = 32;
+    constexpr uint8_t filled = 64;
+};
+
+// carefully designed to consume max of 32 bytes
+struct RenderCall_t
+{
+    RenderCallType type;
+    uint8_t features;
+
+    int16_t xDst, yDst, wDst, hDst;
+    int16_t xSrc, ySrc, wSrc, hSrc;
+    uint8_t r, g, b, a;
+    union
+    {
+        uint16_t angle;
+        uint16_t radius;
+    };
+    StdPicture* texture;
+};
+
+struct RenderQueue_t
+{
+    std::vector<RenderCall_t> m_calls;
+    std::vector<int32_t> m_indices;
+    uint16_t m_size = 0;
+
+    inline void clear()
+    {
+        m_calls.clear();
+        m_indices.clear();
+        m_size = 0;
+    }
+
+    inline RenderCall_t& push(int16_t depth)
+    {
+        if(m_size == UINT16_MAX)
+        {
+            SDL_assert_release(false); // render queue overflow
+            return m_calls[m_size - 1];
+        }
+
+        m_calls.emplace_back();
+        m_indices.push_back((int32_t)(((uint32_t)depth << 16) | m_size));
+        return m_calls[m_size++];
+    }
+
+    inline void sort()
+    {
+        std::sort(m_indices.begin(), m_indices.end());
+    }
+};
 
 class AbstractRender_t
 {
@@ -77,6 +147,24 @@ protected:
 #ifdef USE_RENDER_BLOCKING
     static bool m_blockRender;
 #endif
+
+    RenderQueue_t m_renderQueue;
+    bool m_directRender = false;
+
+    // Offset to shake screen
+    int m_viewport_offset_x = 0;
+    int m_viewport_offset_y = 0;
+    // Keep zero viewport offset while this flag is on
+    bool m_viewport_offset_ignore = false;
+    // Carried set value for viewport offset (used to preserve values while ignore option is on)
+    int m_viewport_offset_x_cur = 0;
+    int m_viewport_offset_y_cur = 0;
+
+    bool m_viewport_enabled = false;
+    int m_viewport_x = 0;
+    int m_viewport_y = 0;
+    int m_viewport_w = 0;
+    int m_viewport_h = 0;
 
 public:
     AbstractRender_t();
@@ -108,9 +196,14 @@ public:
     virtual void close();
 
     /*!
+     * \brief Flushes the render queue (if it exists)
+     */
+    void flushRenderQueue();
+
+    /*!
      * \brief Call the repaint
      */
-    virtual void repaint() = 0;
+    void repaint();
 
     /*!
      * \brief Update viewport (mainly after screen resize)
@@ -120,7 +213,7 @@ public:
     /*!
      * \brief Reset viewport into default state
      */
-    virtual void resetViewport() = 0;
+    void resetViewport();
 
     /*!
      * \brief Set the viewport area
@@ -129,7 +222,7 @@ public:
      * \param w Viewport Width
      * \param h Viewport Height
      */
-    virtual void setViewport(int x, int y, int w, int h) = 0;
+    void setViewport(int x, int y, int w, int h);
 
     /*!
      * \brief Set the render offset
@@ -138,7 +231,7 @@ public:
      *
      * All drawing objects will be drawn with a small offset
      */
-    virtual void offsetViewport(int x, int y) = 0; // for screen-shaking
+    void offsetViewport(int x, int y); // for screen-shaking
 
     /*!
      * \brief Set temporary ignore of render offset
@@ -146,7 +239,12 @@ public:
      *
      * Use this to draw certain objects with ignorign of the GFX offset
      */
-    virtual void offsetViewportIgnore(bool en) = 0;
+    void offsetViewportIgnore(bool en);
+
+    /*!
+     * \brief Updates the internal viewport to reflect the updated viewport
+     */
+    virtual void updateViewportInternal() = 0;
 
     /*!
      * \brief Map absolute point coordinate into screen relative
@@ -211,54 +309,59 @@ public:
 
 
 
+    // Actual draw function
+    virtual void executeRender(const RenderCall_t &render, int16_t depth) = 0;
+    virtual void textureToScreen() = 0;
+    virtual void finalizeRender() = 0;
+
 
     // Draw primitives
 
-    virtual void renderRect(int x, int y, int w, int h,
-                            float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f,
-                            bool filled = true) = 0;
+    void renderRect(int x, int y, int w, int h,
+                    float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f,
+                    bool filled = true);
 
-    virtual void renderRectBR(int _left, int _top, int _right, int _bottom,
-                              float red, float green, float blue, float alpha) = 0;
+    void renderRectBR(int _left, int _top, int _right, int _bottom,
+                      float red, float green, float blue, float alpha);
 
-    virtual void renderCircle(int cx, int cy,
-                              int radius,
-                              float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f,
-                              bool filled = true) = 0;
+    void renderCircle(int cx, int cy,
+                      int radius,
+                      float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f,
+                      bool filled = true);
 
-    virtual void renderCircleHole(int cx, int cy,
-                                  int radius,
-                                  float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) =0;
+    void renderCircleHole(int cx, int cy,
+                          int radius,
+                          float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
 
 
 
 
     // Draw texture
 
-    virtual void renderTextureScaleEx(double xDst, double yDst, double wDst, double hDst,
+    void renderTextureScaleEx(double xDst, double yDst, double wDst, double hDst,
                               StdPicture &tx,
                               int xSrc, int ySrc,
                               int wSrc, int hSrc,
                               double rotateAngle = 0.0, FPoint_t *center = nullptr, unsigned int flip = X_FLIP_NONE,
-                              float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) = 0;
+                              float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
 
-    virtual void renderTextureScale(double xDst, double yDst, double wDst, double hDst,
+    void renderTextureScale(double xDst, double yDst, double wDst, double hDst,
                             StdPicture &tx,
-                            float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) = 0;
+                            float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
 
-    virtual void renderTexture(double xDst, double yDst, double wDst, double hDst,
+    void renderTexture(double xDst, double yDst, double wDst, double hDst,
                                StdPicture &tx,
                                int xSrc, int ySrc,
-                               float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) = 0;
+                               float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
 
-    virtual void renderTextureFL(double xDst, double yDst, double wDst, double hDst,
+    void renderTextureFL(double xDst, double yDst, double wDst, double hDst,
                                  StdPicture &tx,
                                  int xSrc, int ySrc,
                                  double rotateAngle = 0.0, FPoint_t *center = nullptr, unsigned int flip = X_FLIP_NONE,
-                                 float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) = 0;
+                                 float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
 
-    virtual void renderTexture(float xDst, float yDst, StdPicture &tx,
-                               float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) = 0;
+    void renderTexture(float xDst, float yDst, StdPicture &tx,
+                               float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
 
 
 

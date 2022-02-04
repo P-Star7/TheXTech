@@ -47,23 +47,10 @@ class RenderSDL final : public AbstractRender_t
     // Side offsets to keep ratio
     float m_offset_x = 0.f;
     float m_offset_y = 0.f;
-    // Offset to shake screen
-    int m_viewport_offset_x = 0;
-    int m_viewport_offset_y = 0;
-    // Keep zero viewport offset while this flag is on
-    bool m_viewport_offset_ignore = false;
-    // Carried set value for viewport offset (used to preserve values while ignore option is on)
-    int m_viewport_offset_x_cur = 0;
-    int m_viewport_offset_y_cur = 0;
 
     //Need to calculate relative viewport position when screen was scaled
     float m_viewport_scale_x = 1.0f;
     float m_viewport_scale_y = 1.0f;
-
-    int m_viewport_x = 0;
-    int m_viewport_y = 0;
-    int m_viewport_w = 0;
-    int m_viewport_h = 0;
 
 public:
     RenderSDL();
@@ -82,45 +69,14 @@ public:
     void close() override;
 
     /*!
-     * \brief Call the repaint
-     */
-    void repaint() override;
-
-    /*!
      * \brief Update viewport (mainly after screen resize)
      */
     void updateViewport() override;
 
     /*!
-     * \brief Reset viewport into default state
+     * \brief Updates the internal viewport to reflect the updated viewport
      */
-    void resetViewport() override;
-
-    /*!
-     * \brief Set the viewport area
-     * \param x X position
-     * \param y Y position
-     * \param w Viewport Width
-     * \param h Viewport Height
-     */
-    void setViewport(int x, int y, int w, int h) override;
-
-    /*!
-     * \brief Set the render offset
-     * \param x X offset
-     * \param y Y offset
-     *
-     * All drawing objects will be drawn with a small offset
-     */
-    void offsetViewport(int x, int y) override; // for screen-shaking
-
-    /*!
-     * \brief Set temporary ignore of render offset
-     * \param en Enable viewport offset ignore
-     *
-     * Use this to draw certain objects with ignorign of the GFX offset
-     */
-    void offsetViewportIgnore(bool en) override;
+    void updateViewportInternal();
 
     void mapToScreen(int x, int y, int *dx, int *dy) override;
 
@@ -149,56 +105,10 @@ public:
     void clearBuffer() override;
 
 
-
-    // Draw primitives
-
-    void renderRect(int x, int y, int w, int h,
-                    float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f,
-                    bool filled = true) override;
-
-    void renderRectBR(int _left, int _top, int _right,
-                      int _bottom, float red, float green, float blue, float alpha) override;
-
-    void renderCircle(int cx, int cy,
-                      int radius,
-                      float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f,
-                      bool filled = true) override;
-
-    void renderCircleHole(int cx, int cy,
-                          int radius,
-                          float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) override;
-
-
-
-
-    // Draw texture
-
-    void renderTextureScaleEx(double xDst, double yDst, double wDst, double hDst,
-                              StdPicture &tx,
-                              int xSrc, int ySrc,
-                              int wSrc, int hSrc,
-                              double rotateAngle =.0, FPoint_t *center = nullptr, unsigned int flip = X_FLIP_NONE,
-                              float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) override;
-
-    void renderTextureScale(double xDst, double yDst, double wDst, double hDst,
-                            StdPicture &tx,
-                            float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) override;
-
-    void renderTexture(double xDst, double yDst, double wDst, double hDst,
-                       StdPicture &tx,
-                       int xSrc, int ySrc,
-                       float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) override;
-
-    void renderTextureFL(double xDst, double yDst, double wDst, double hDst,
-                         StdPicture &tx,
-                         int xSrc, int ySrc,
-                         double rotateAngle =.0, FPoint_t *center = nullptr, unsigned int flip = X_FLIP_NONE,
-                         float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) override;
-
-    void renderTexture(float xDst, float yDst, StdPicture &tx,
-                       float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) override;
-
-
+    // Actual draw functions
+    void executeRender(const RenderCall_t &render, int16_t depth) override;
+    void textureToScreen() override;
+    void finalizeRender() override;
 
 
     // Retrieve raw pixel data

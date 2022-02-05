@@ -91,7 +91,7 @@ void speedRun_renderTimer()
         return; // Don't draw things at Menu and Outro
 
     s_gamePlayTimer.render();
-    SuperPrintRightAlign(fmt::format_ne("Mode {0}", g_speedRunnerMode), 3, ScreenW - 2, 2, 1.f, 0.3f, 0.3f, 0.5f);
+    SuperPrintRightAlign(fmt::format_ne("Mode {0}", g_speedRunnerMode), 3, ScreenW - 2, 2, XDepth::Meta, XColor(1.f, 0.3f, 0.3f, 0.5f));
 }
 
 static void GetControllerColor(int player, float& r, float& g, float& b, bool* drawLabel = nullptr)
@@ -147,32 +147,32 @@ void RenderControls(int player, int x, int y, int w, int h)
 
     GetControllerColor(player, r, g, b, &drawLabel);
 
-    XRender::renderRect(x, y, w, h, 0.f, 0.f, 0.f, alhpa, true);//Edge
-    XRender::renderRect(x + 2, y + 2, w - 4, h - 4, r, g, b, alhpa, true);//Box
+    XRender::renderRect(x, y, w, h, XDepth::Meta, XColor(0.f, 0.f, 0.f, alhpa), true);//Edge
+    XRender::renderRect(x + 2, y + 2, w - 4, h - 4, XDepth::Meta, XColor(r, g, b, alhpa), true);//Box
 
     if(player < 1 || player > maxLocalPlayers)
         return;
 
     const Controls_t& c = s_displayControls[player-1];
-    XRender::renderRect(x + 10, y + 12, 6, 6, 0.f, 0.f, 0.f, alhpaB, true);//Cender of D-Pad
-    XRender::renderRect(x + 10, y + 6, 6, 6, bool2gray(c.Up), alhpaB, true);
-    XRender::renderRect(x + 10, y + 18, 6, 6, bool2gray(c.Down), alhpaB, true);
-    XRender::renderRect(x + 4, y + 12, 6, 6, bool2gray(c.Left), alhpaB, true);
-    XRender::renderRect(x + 16, y + 12, 6, 6, bool2gray(c.Right), alhpaB, true);
+    XRender::renderRect(x + 10, y + 12, 6, 6, XDepth::Meta, XColor(0.f, 0.f, 0.f, alhpaB), true);//Cender of D-Pad
+    XRender::renderRect(x + 10, y + 6, 6, 6, XDepth::Meta, XColor(bool2gray(c.Up), alhpaB), true);
+    XRender::renderRect(x + 10, y + 18, 6, 6, XDepth::Meta, XColor(bool2gray(c.Down), alhpaB), true);
+    XRender::renderRect(x + 4, y + 12, 6, 6, XDepth::Meta, XColor(bool2gray(c.Left), alhpaB), true);
+    XRender::renderRect(x + 16, y + 12, 6, 6, XDepth::Meta, XColor(bool2gray(c.Right), alhpaB), true);
 
-    XRender::renderRect(x + 64, y + 18, 6, 6, bool2green(c.Jump), alhpaB, true);
-    XRender::renderRect(x + 66, y + 8, 6, 6, bool2red(c.AltJump), alhpaB, true);
-    XRender::renderRect(x + 54, y + 16, 6, 6, bool2blue(c.Run), alhpaB, true);
-    XRender::renderRect(x + 56, y + 6, 6, 6, bool2yellow(c.AltRun), alhpaB, true);
+    XRender::renderRect(x + 64, y + 18, 6, 6, XDepth::Meta, XColor(bool2green(c.Jump), alhpaB), true);
+    XRender::renderRect(x + 66, y + 8, 6, 6, XDepth::Meta, XColor(bool2red(c.AltJump), alhpaB), true);
+    XRender::renderRect(x + 54, y + 16, 6, 6, XDepth::Meta, XColor(bool2blue(c.Run), alhpaB), true);
+    XRender::renderRect(x + 56, y + 6, 6, 6, XDepth::Meta, XColor(bool2yellow(c.AltRun), alhpaB), true);
 
-    XRender::renderRect(x + 26, y + 22, 10, 4, bool2gray(c.Drop), alhpaB, true);
+    XRender::renderRect(x + 26, y + 22, 10, 4, XDepth::Meta, XColor(bool2gray(c.Drop), alhpaB), true);
     if(SharedControls.LegacyPause)
-        XRender::renderRect(x + 40, y + 22, 10, 4, bool2legacy(c.Start), alhpaB, true);
+        XRender::renderRect(x + 40, y + 22, 10, 4, XDepth::Meta, XColor(bool2legacy(c.Start), alhpaB), true);
     else
-        XRender::renderRect(x + 40, y + 22, 10, 4, bool2gray(c.Start), alhpaB, true);
+        XRender::renderRect(x + 40, y + 22, 10, 4, XDepth::Meta, XColor(bool2gray(c.Start), alhpaB), true);
 
     if(drawLabel)
-        SuperPrint(fmt::format_ne("P{0}", player), 3, x + 22, y + 2, 1.f, 1.f, 1.f, 0.5f);
+        SuperPrint(fmt::format_ne("P{0}", player), 3, x + 22, y + 2, XDepth::Meta, XColor(1.f, 1.f, 1.f, 0.5f));
 }
 
 void RenderControllerBattery(int player, int bx, int by, int bw, int bh)
@@ -187,10 +187,10 @@ void RenderControllerBattery(int player, int bx, int by, int bw, int bh)
 
     if(status_info.power_status != Controls::StatusInfo::POWER_DISABLED)
     {
-        XRender::renderRect(bx, by, bw - 4, bh, 0.f, 0.f, 0.f, alhpa, true);//Edge
-        XRender::renderRect(bx + 2, by + 2, bw - 8, bh - 4, r, g, b, alhpa, true);//Box
-        XRender::renderRect(bx + 36, by + 6, 4, 10, 0.f, 0.f, 0.f, alhpa, true);//Edge
-        XRender::renderRect(bx + 34, by + 8, 4, 6, r, g, b, alhpa, true);//Box
+        XRender::renderRect(bx, by, bw - 4, bh, XDepth::Meta, XColor(0.f, 0.f, 0.f, alhpa), true);//Edge
+        XRender::renderRect(bx + 2, by + 2, bw - 8, bh - 4, XDepth::Meta, XColor(r, g, b, alhpa), true);//Box
+        XRender::renderRect(bx + 36, by + 6, 4, 10, XDepth::Meta, XColor(0.f, 0.f, 0.f, alhpa), true);//Edge
+        XRender::renderRect(bx + 34, by + 8, 4, 6, XDepth::Meta, XColor(r, g, b, alhpa), true);//Box
 
         int segments;
 
@@ -231,37 +231,37 @@ void RenderControllerBattery(int player, int bx, int by, int bw, int bh)
             if(s > 2) s = 2;
             // if(flash && status_info.power_status == Controls::StatusInfo::POWER_CHARGING)
             //     s = 2;
-            XRender::renderRect(bx + 34, by + 10, s, 2, r, g, b, alhpaB, true); // fallthrough
+            XRender::renderRect(bx + 34, by + 10, s, 2, XDepth::Meta, XColor(r, g, b, alhpaB), true); // fallthrough
         case 3:
             s = 4.f * (status_info.power_level - 0.6f) / 0.3f;
             if(s > 4) s = 4;
             // if(flash && status_info.power_status == Controls::StatusInfo::POWER_CHARGING)
             //     s = 4;
-            XRender::renderRect(bx + 24, by + 4, s*2, 14, r, g, b, alhpaB, true); // fallthrough
+            XRender::renderRect(bx + 24, by + 4, s*2, 14, XDepth::Meta, XColor(r, g, b, alhpaB), true); // fallthrough
         case 2:
             s = 4.f * (status_info.power_level - 0.3f) / 0.3f;
             if(s > 4) s = 4;
             // if(flash && status_info.power_status == Controls::StatusInfo::POWER_CHARGING)
             //     s = 4;
-            XRender::renderRect(bx + 14, by + 4, s*2, 14, r, g, b, alhpaB, true); // fallthrough
+            XRender::renderRect(bx + 14, by + 4, s*2, 14, XDepth::Meta, XColor(r, g, b, alhpaB), true); // fallthrough
         case 1:
             s = 4.f * status_info.power_level / 0.3f;
             if(s > 4) s = 4;
             // if(flash && status_info.power_status == Controls::StatusInfo::POWER_CHARGING)
             //     s = 4;
-            XRender::renderRect(bx + 4, by + 4, s*2, 14, r, g, b, alhpaB, true);
+            XRender::renderRect(bx + 4, by + 4, s*2, 14, XDepth::Meta, XColor(r, g, b, alhpaB), true);
             break;
         }
         if(status_info.power_status == Controls::StatusInfo::POWER_UNKNOWN)
-            SuperPrintCenter("?", 3, bx + bw / 2, by + bh / 2 - 8);
+            SuperPrintCenter("?", 3, bx + bw / 2, by + bh / 2 - 8, XDepth::Meta);
         if(status_info.power_status == Controls::StatusInfo::POWER_WIRED)
-            SuperPrintCenter("W", 3, bx + bw / 2, by + bh / 2 - 8);
+            SuperPrintCenter("W", 3, bx + bw / 2, by + bh / 2 - 8, XDepth::Meta);
         if(status_info.power_status == Controls::StatusInfo::POWER_CHARGING)
-            SuperPrintCenter("+", 3, bx + bw / 2, by + bh / 2 - 7);
+            SuperPrintCenter("+", 3, bx + bw / 2, by + bh / 2 - 7, XDepth::Meta);
     }
 
     if(status_info.info_string)
-        SuperPrintCenter(status_info.info_string, 3, bx + bw / 2, by - 30);
+        SuperPrintCenter(status_info.info_string, 3, bx + bw / 2, by - 30, XDepth::Meta);
 }
 
 void speedRun_renderControls(int player, int screenZ)

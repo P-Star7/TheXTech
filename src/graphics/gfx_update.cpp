@@ -1892,18 +1892,18 @@ void UpdateGraphics(bool skipRepaint)
                 if(NPC[A].Type == 263)
                 {
                     g_stats.renderedNPCs++;
-                    DrawFrozenNPC(Z, A);
+                    DrawFrozenNPC(Z, A, XDepth::NPC_Held);
                 }
                 else if(!NPCIsYoshi[NPC[A].Type] && NPC[A].Type > 0)
                 {
                     g_stats.renderedNPCs++;
                     if(NPCWidthGFX[NPC[A].Type] == 0)
                     {
-                        XRender::renderTexture(vScreenX[Z] + NPC[A].Location.X + NPCFrameOffsetX[NPC[A].Type], vScreenY[Z] + NPC[A].Location.Y + NPCFrameOffsetY[NPC[A].Type], NPC[A].Location.Width, NPC[A].Location.Height, GFXNPC[NPC[A].Type], 0, NPC[A].Frame * NPC[A].Location.Height, cn, cn, cn);
+                        XRender::renderTexture(vScreenX[Z] + NPC[A].Location.X + NPCFrameOffsetX[NPC[A].Type], vScreenY[Z] + NPC[A].Location.Y + NPCFrameOffsetY[NPC[A].Type], NPC[A].Location.Width, NPC[A].Location.Height, XDepth::NPC_Held, GFXNPC[NPC[A].Type], 0, NPC[A].Frame * NPC[A].Location.Height, XColor(cn, cn, cn));
                     }
                     else
                     {
-                        XRender::renderTexture(vScreenX[Z] + NPC[A].Location.X + (NPCFrameOffsetX[NPC[A].Type] * -NPC[A].Direction) - NPCWidthGFX[NPC[A].Type] / 2.0 + NPC[A].Location.Width / 2.0, vScreenY[Z] + NPC[A].Location.Y + NPCFrameOffsetY[NPC[A].Type] - NPCHeightGFX[NPC[A].Type] + NPC[A].Location.Height, NPCWidthGFX[NPC[A].Type], NPCHeightGFX[NPC[A].Type], GFXNPC[NPC[A].Type], 0, NPC[A].Frame * NPCHeightGFX[NPC[A].Type], cn, cn, cn);
+                        XRender::renderTexture(vScreenX[Z] + NPC[A].Location.X + (NPCFrameOffsetX[NPC[A].Type] * -NPC[A].Direction) - NPCWidthGFX[NPC[A].Type] / 2.0 + NPC[A].Location.Width / 2.0, vScreenY[Z] + NPC[A].Location.Y + NPCFrameOffsetY[NPC[A].Type] - NPCHeightGFX[NPC[A].Type] + NPC[A].Location.Height, NPCWidthGFX[NPC[A].Type], NPCHeightGFX[NPC[A].Type], XDepth::NPC_Held, GFXNPC[NPC[A].Type], 0, NPC[A].Frame * NPCHeightGFX[NPC[A].Type], XColor(cn, cn, cn));
                     }
                 }
             }
@@ -2153,7 +2153,8 @@ void UpdateGraphics(bool skipRepaint)
                             XRender::renderTexture(Player[A].Location.X + Player[A].Location.Width / 2.0 + vScreenX[Z] - tempString.length() * 9 - 20, Player[A].Location.Y + Player[A].Location.Height - 96 + vScreenY[Z], GFX.Interface[5].w, GFX.Interface[5].h, GFX.Interface[5], 0, 0);
                             SuperPrint(tempString, 3,
                                        float(Player[A].Location.X + Player[A].Location.Width / 2.0 + vScreenX[Z] - tempString.length() * 9 + 18),
-                                       float(Player[A].Location.Y + Player[A].Location.Height - 96 + vScreenY[Z]));
+                                       float(Player[A].Location.Y + Player[A].Location.Height - 96 + vScreenY[Z]),
+                                       XDepth::NPC_Dropped);
                         }
                     }
                 }
@@ -2178,11 +2179,11 @@ void UpdateGraphics(bool skipRepaint)
                                     g_stats.renderedNPCs++;
                                     if(NPCWidthGFX[NPC[A].Type] == 0)
                                     {
-                                        XRender::renderTexture(vScreenX[Z] + NPC[A].Location.X + NPCFrameOffsetX[NPC[A].Type], vScreenY[Z] + NPC[A].Location.Y + NPCFrameOffsetY[NPC[A].Type], NPC[A].Location.Width, NPC[A].Location.Height, GFXNPC[NPC[A].Type], 0, NPC[A].Frame * NPC[A].Location.Height);
+                                        XRender::renderTexture(vScreenX[Z] + NPC[A].Location.X + NPCFrameOffsetX[NPC[A].Type], vScreenY[Z] + NPC[A].Location.Y + NPCFrameOffsetY[NPC[A].Type], NPC[A].Location.Width, NPC[A].Location.Height, XDepth::NPC_Dropped, GFXNPC[NPC[A].Type], 0, NPC[A].Frame * NPC[A].Location.Height);
                                     }
                                     else
                                     {
-                                        XRender::renderTexture(vScreenX[Z] + NPC[A].Location.X + NPCFrameOffsetX[NPC[A].Type] - NPCWidthGFX[NPC[A].Type] / 2.0 + NPC[A].Location.Width / 2.0, vScreenY[Z] + NPC[A].Location.Y + NPCFrameOffsetY[NPC[A].Type] - NPCHeightGFX[NPC[A].Type] + NPC[A].Location.Height, NPCWidthGFX[NPC[A].Type], NPCHeightGFX[NPC[A].Type], GFXNPC[NPC[A].Type], 0, NPC[A].Frame * NPCHeightGFX[NPC[A].Type]);
+                                        XRender::renderTexture(vScreenX[Z] + NPC[A].Location.X + NPCFrameOffsetX[NPC[A].Type] - NPCWidthGFX[NPC[A].Type] / 2.0 + NPC[A].Location.Width / 2.0, vScreenY[Z] + NPC[A].Location.Y + NPCFrameOffsetY[NPC[A].Type] - NPCHeightGFX[NPC[A].Type] + NPC[A].Location.Height, NPCWidthGFX[NPC[A].Type], NPCHeightGFX[NPC[A].Type], XDepth::NPC_Dropped, GFXNPC[NPC[A].Type], 0, NPC[A].Frame * NPCHeightGFX[NPC[A].Type]);
                                     }
                                 }
 
@@ -2210,7 +2211,7 @@ void UpdateGraphics(bool skipRepaint)
             if(PrintFPS > 0)
             {
                 XRender::offsetViewportIgnore(true);
-                SuperPrint(fmt::format_ne("{0}", int(PrintFPS)), 1, 8, 8, 0.f, 1.f, 0.f);
+                SuperPrint(fmt::format_ne("{0}", int(PrintFPS)), 1, 8, 8, XDepth::Meta, XColor(0.f, 1.f, 0.f));
                 XRender::offsetViewportIgnore(false);
             }
 
@@ -2461,7 +2462,7 @@ void UpdateGraphics(bool skipRepaint)
 
                                     XRender::renderTexture(vScreenX[Z] + b.Location.X + C * 32,
                                                           vScreenY[Z] + b.Location.Y + B * 32,
-                                                          32, 32, GFXBlock[b.Type], D * 32, E * 32);
+                                                          32, 32, XDepth::EditorItem, GFXBlock[b.Type], D * 32, E * 32);
 //                                    if((D == 0 || D == 2) || (E == 0 || E == 2))
 //                                    {
 //                                        XRender::renderTexture(vScreenX(Z) + .Location.X + C * 32, vScreenY(Z) + .Location.Y + B * 32, 32, 32, GFXBlock(.Type), D * 32, E * 32)
@@ -2481,7 +2482,9 @@ void UpdateGraphics(bool skipRepaint)
                                                   vScreenY[Z] + b.Location.Y + b.ShakeY3,
                                                   b.Location.Width,
                                                   b.Location.Height,
-                                                  GFXBlock[b.Type], 0, BlockFrame[b.Type] * 32);
+                                                  XDepth::EditorItem,
+                                                  GFXBlock[b.Type],
+                                                  0, BlockFrame[b.Type] * 32);
                         }
                     }
                 }
@@ -2527,8 +2530,9 @@ void UpdateGraphics(bool skipRepaint)
                                               vScreenY[Z] + b.Location.Y,
                                               BackgroundWidth[b.Type],
                                               BackgroundHeight[b.Type],
-                                              GFXBackground[b.Type], 0,
-                                              BackgroundHeight[b.Type] * BackgroundFrame[b.Type]);
+                                              XDepth::EditorItem,
+                                              GFXBackground[b.Type],
+                                              0, BackgroundHeight[b.Type] * BackgroundFrame[b.Type]);
                     }
                 }
 
@@ -2547,6 +2551,7 @@ void UpdateGraphics(bool skipRepaint)
                                               vScreenY[Z] + n.Location.Y + NPCFrameOffsetY[n.Type],
                                               n.Location.Width,
                                               n.Location.Height,
+                                              XDepth::EditorItem,
                                               GFXNPC[n.Type], 0, n.Frame * n.Location.Height);
                     }
                     else
@@ -2570,30 +2575,33 @@ void UpdateGraphics(bool skipRepaint)
                             XRender::renderTexture(vScreenX[Z] + tempLocation.X + NPCFrameOffsetX[n.Type],
                                                   vScreenY[Z] + tempLocation.Y,
                                                   tempLocation.Width, tempLocation.Height,
+                                                  XDepth::EditorItem,
                                                   GFXNPC[n.Special], 0, B * tempLocation.Height);
                         }
 
                         XRender::renderTexture(vScreenX[Z] + n.Location.X + NPCFrameOffsetX[n.Type] - NPCWidthGFX[n.Type] / 2 + n.Location.Width / 2,
                                               vScreenY[Z] + n.Location.Y + NPCFrameOffsetY[n.Type] - NPCHeightGFX[n.Type] + n.Location.Height,
-                                              NPCWidthGFX[n.Type], NPCHeightGFX[n.Type], GFXNPC[n.Type],
+                                              NPCWidthGFX[n.Type], NPCHeightGFX[n.Type],
+                                              XDepth::EditorItem,
+                                              GFXNPC[n.Type],
                                               0, n.Frame * NPCHeightGFX[n.Type]);
                     }
                 }
 
                 if(EditorCursor.Mode == 0 || EditorCursor.Mode == 6) // Eraser
                 {
-                    XRender::renderTexture(curX - 2, curY, GFX.ECursor[3]);
+                    XRender::renderTexture(curX - 2, curY, XDepth::Cursor, GFX.ECursor[3]);
                 }
 
                 else if(EditorCursor.Mode == 13 || EditorCursor.Mode == 14) // Selector
                 {
-                    XRender::renderTexture(curX, curY, GFX.ECursor[2]);
+                    XRender::renderTexture(curX, curY, XDepth::Cursor, GFX.ECursor[2]);
                 }
 
                 // ElseIf .Mode = 2 And (frmLevelSettings.optLevel(0).Value = True Or frmLevelSettings.optLevel(1).Value = True Or frmLevelSettings.optLevel(2).Value = True Or frmLevelSettings.optLevel(3).Value = True) Then
                 else if(EditorCursor.Mode == 2)
                 {
-                    XRender::renderTexture(curX, curY, GFX.ECursor[1]);
+                    XRender::renderTexture(curX, curY, XDepth::Cursor, GFX.ECursor[1]);
                 }
 
                 else if(EditorCursor.Mode == 15) // Water
@@ -2608,11 +2616,11 @@ void UpdateGraphics(bool skipRepaint)
 //                    Next A
 //                    BitBlt myBackBuffer, .X - vScreen(Z).Left, .Y - vScreen(Z).Top, 32, 32, GFX.ECursorMask(2).hdc, 0, 0, vbSrcAnd
 //                    BitBlt myBackBuffer, .X - vScreen(Z).Left, .Y - vScreen(Z).Top, 32, 32, GFX.ECursor(2).hdc, 0, 0, vbSrcPaint
-                    XRender::renderTexture(curX, curY, GFX.ECursor[2]);
+                    XRender::renderTexture(curX, curY, XDepth::Cursor, GFX.ECursor[2]);
 //                    If LCase(frmLayers.lstLayer.List(frmLayers.lstLayer.ListIndex)) <> "default" Then
                     if(e.Layer != LAYER_NONE && e.Layer != LAYER_DEFAULT)
 //                        SuperPrint UCase(frmLayers.lstLayer.List(frmLayers.lstLayer.ListIndex)), 3, .X + 28, .Y + 34
-                        SuperPrint(GetL(e.Layer), 3, curX + 28, curY + 34);
+                        SuperPrint(GetL(e.Layer), 3, curX + 28, curY + 34, XDepth::Cursor);
 //                    End If
                 }
 //                Else
@@ -2629,11 +2637,11 @@ void UpdateGraphics(bool skipRepaint)
                     }
 //                    BitBlt myBackBuffer, .X - vScreen(Z).Left, .Y - vScreen(Z).Top, 32, 32, GFX.ECursorMask(2).hdc, 0, 0, vbSrcAnd
 //                    BitBlt myBackBuffer, .X - vScreen(Z).Left, .Y - vScreen(Z).Top, 32, 32, GFX.ECursor(2).hdc, 0, 0, vbSrcPaint
-                    XRender::renderTexture(curX, curY, GFX.ECursor[2]);
+                    XRender::renderTexture(curX, curY, XDepth::Cursor, GFX.ECursor[2]);
 //                    If LCase(frmLayers.lstLayer.List(frmLayers.lstLayer.ListIndex)) <> "default" Then
                     if(e.Layer != LAYER_NONE && e.Layer != LAYER_DEFAULT)
 //                        SuperPrint UCase(frmLayers.lstLayer.List(frmLayers.lstLayer.ListIndex)), 3, .X + 28, .Y + 34
-                        SuperPrint(GetL(e.Layer), 3, curX + 28, curY + 34);
+                        SuperPrint(GetL(e.Layer), 3, curX + 28, curY + 34, XDepth::Cursor);
 //                    End If
 //                End If
                 }
@@ -2688,7 +2696,7 @@ void UpdateGraphics(bool skipRepaint)
     if(GamePaused == PauseCode::Reconnect || GamePaused == PauseCode::DropAdd)
     {
         ConnectScreen::Render();
-        XRender::renderTexture(int(SharedCursor.X), int(SharedCursor.Y), GFX.ECursor[2]);
+        XRender::renderTexture(int(SharedCursor.X), int(SharedCursor.Y), XDepth::Cursor, GFX.ECursor[2]);
     }
 
     if(GamePaused == PauseCode::TextEntry)

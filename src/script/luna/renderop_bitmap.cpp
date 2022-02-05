@@ -68,5 +68,5 @@ void RenderBitmapOp::Draw(Renderer *renderer)
     if((width <= 0) || (height <= 0))
         return;
 
-    XRender::renderTexture(x, y, width, height, direct_img->m_image, sx, sy, 1.f, 1.f, 1.f, opacity);
+    XRender::renderTexture(x, y, width, height, XDepth::Default, direct_img->m_image, sx, sy, XColor(1.f, 1.f, 1.f, opacity));
 }

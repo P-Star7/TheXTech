@@ -34,7 +34,7 @@ void DrawPlayer(Player_t &p, const int Z)
 {
     int B = 0;
     double C = 0;
-    float s = ShadowMode ? 0.f : 1.f;
+    XColor s = ShadowMode ? XColor(0, 0, 0) : XColor(255, 255, 255);
     //auto &p = Player[A];
 
     if(!p.Dead && !p.Immune2 && p.TimeToLive == 0 && !(p.Effect == 3 || p.Effect == 5 || p.Effect == 8 || p.Effect == 10))
@@ -56,9 +56,9 @@ void DrawPlayer(Player_t &p, const int Z)
                                           vScreenY[Z] + p.YoshiTongue.Y,
                                           p.YoshiTongueLength + 2,
                                           16,
-                                          GFX.Tongue[2],
+                                          XDepth::Mount, GFX.Tongue[2],
                                           0, 0,
-                                          s, s, s);
+                                          s);
 
                     C = 1;
                     if(p.Direction == 1)
@@ -67,23 +67,23 @@ void DrawPlayer(Player_t &p, const int Z)
                     XRender::renderTexture(vScreenX[Z] + p.YoshiTongue.X,
                                           vScreenY[Z] + p.YoshiTongue.Y,
                                           16, 16,
-                                          GFX.Tongue[1],
+                                          XDepth::Mount, GFX.Tongue[1],
                                           0,
                                           16 * C,
-                                          s, s, s);
+                                          s);
                 }
 
                 // Yoshi's Body
                 XRender::renderTexture(vScreenX[Z] + p.Location.X + p.YoshiBX,
                                       vScreenY[Z] + p.Location.Y + p.YoshiBY,
                                       32, 32,
-                                      GFXYoshiB[B], 0, 32 * p.YoshiBFrame, s, s, s);
+                                      XDepth::Mount, GFXYoshiB[B], 0, 32 * p.YoshiBFrame, s);
 
                 // Yoshi's Head
                 XRender::renderTexture(vScreenX[Z] + p.Location.X + p.YoshiTX,
                                       vScreenY[Z] + p.Location.Y + p.YoshiTY,
                                       32, 32,
-                                      GFXYoshiT[B], 0, 32 * p.YoshiTFrame, s, s, s);
+                                      XDepth::Mount, GFXYoshiT[B], 0, 32 * p.YoshiTFrame, s);
             }
 
             if(p.Fairy) // draw a fairy
@@ -95,17 +95,17 @@ void DrawPlayer(Player_t &p, const int Z)
                     XRender::renderTexture(vScreenX[Z] + p.Location.X - 5,
                                           vScreenY[Z] + p.Location.Y - 2,
                                           32, 32,
-                                          GFXNPC[254],
+                                          XDepth::Player, GFXNPC[254],
                                           0,
                                           (SpecialFrame[9] + (p.Direction > 0 ? 1 : 3)) * 32,
-                                          s, s, s);
+                                          s);
 //                    if(p.Direction == 1)
 //                    {
-//                        XRender::renderTexture(vScreenX[Z] + p.Location.X - 5, vScreenY[Z] + p.Location.Y - 2, 32, 32, GFXNPC[254], 0, (SpecialFrame[9] + 1) * 32, s, s, s);
+//                        XRender::renderTexture(vScreenX[Z] + p.Location.X - 5, vScreenY[Z] + p.Location.Y - 2, 32, 32, GFXNPC[254], 0, (SpecialFrame[9] + 1) * 32, s);
 //                    }
 //                    else
 //                    {
-//                        XRender::renderTexture(vScreenX[Z] + p.Location.X - 5, vScreenY[Z] + p.Location.Y - 2, 32, 32, GFXNPC[254], 0, (SpecialFrame[9] + 3) * 32, s, s, s);
+//                        XRender::renderTexture(vScreenX[Z] + p.Location.X - 5, vScreenY[Z] + p.Location.Y - 2, 32, 32, GFXNPC[254], 0, (SpecialFrame[9] + 3) * 32, s);
 //                    }
                 }
             }
@@ -117,10 +117,10 @@ void DrawPlayer(Player_t &p, const int Z)
                                 vScreenX[Z] + p.Location.X + MarioFrameX[(p.State * 100) + (p.Frame * p.Direction)],
                                 vScreenY[Z] + p.Location.Y + MarioFrameY[(p.State * 100) + (p.Frame * p.Direction)],
                                 100, 100,
-                                GFXMario[p.State],
+                                XDepth::Player, GFXMario[p.State],
                                 pfrX(p.Frame * p.Direction),
                                 pfrY(p.Frame * p.Direction),
-                                s, s, s);
+                                s);
                 }
                 else if(p.Mount == 1)
                 {
@@ -131,29 +131,29 @@ void DrawPlayer(Player_t &p, const int Z)
                                     vScreenY[Z] + p.Location.Y + MarioFrameY[(p.State * 100) + (p.Frame * p.Direction)],
                                     100,
                                     p.Location.Height - 26 /*- p.MountOffsetY*/ - MarioFrameY[(p.State * 100) + (p.Frame * p.Direction)],
-                                    GFXMario[p.State],
+                                    XDepth::Player, GFXMario[p.State],
                                     pfrX(p.Frame * p.Direction),
                                     pfrY(p.Frame * p.Direction),
-                                    s, s, s);
+                                    s);
                     }
 
                     XRender::renderTexture(vScreenX[Z] + p.Location.X + p.Location.Width / 2.0 - 16,
                                           vScreenY[Z] + p.Location.Y + p.Location.Height - 30,
                                           32, 32,
-                                          GFX.Boot[p.MountType],
+                                          XDepth::Player, GFX.Boot[p.MountType],
                                           0,
                                           32 * p.MountFrame,
-                                          s, s, s);
+                                          s);
                 }
                 else if(p.Mount == 3)
                 {
                     XRender::renderTexture(vScreenX[Z] + p.Location.X + MarioFrameX[(p.State * 100) + (p.Frame * p.Direction)],
                                           vScreenY[Z] + p.Location.Y + MarioFrameY[(p.State * 100) + (p.Frame * p.Direction)] + p.MountOffsetY,
                                           100, 100,
-                                          GFXMario[p.State],
+                                          XDepth::Player, GFXMario[p.State],
                                           pfrX(p.Frame * p.Direction),
                                           pfrY(p.Frame * p.Direction),
-                                          s, s, s);
+                                          s);
                 }
             }
             else if(p.Character == 2) // draw luigi
@@ -164,10 +164,10 @@ void DrawPlayer(Player_t &p, const int Z)
                                 vScreenX[Z] + p.Location.X + LuigiFrameX[(p.State * 100) + (p.Frame * p.Direction)],
                                 vScreenY[Z] + p.Location.Y + LuigiFrameY[(p.State * 100) + (p.Frame * p.Direction)],
                                 100, 100,
-                                GFXLuigi[p.State],
+                                XDepth::Player, GFXLuigi[p.State],
                                 pfrX(p.Frame * p.Direction),
                                 pfrY(p.Frame * p.Direction),
-                                s, s, s);
+                                s);
                 }
                 else if(p.Mount == 1)
                 {
@@ -177,29 +177,29 @@ void DrawPlayer(Player_t &p, const int Z)
                                               vScreenY[Z] + p.Location.Y + LuigiFrameY[(p.State * 100) + (p.Frame * p.Direction)],
                                               100,
                                               p.Location.Height - 26 /*- p.MountOffsetY*/ - LuigiFrameY[(p.State * 100) + (p.Frame * p.Direction)],
-                                              GFXLuigi[p.State],
+                                              XDepth::Player, GFXLuigi[p.State],
                                               pfrX(p.Frame * p.Direction),
                                               pfrY(p.Frame * p.Direction),
-                                              s, s, s);
+                                              s);
                     }
 
                     XRender::renderTexture(vScreenX[Z] + p.Location.X + p.Location.Width / 2.0 - 16,
                                           vScreenY[Z] + p.Location.Y + p.Location.Height - 30,
                                           32, 32,
-                                          GFX.Boot[p.MountType],
+                                          XDepth::Player, GFX.Boot[p.MountType],
                                           0,
                                           32 * p.MountFrame,
-                                          s, s, s);
+                                          s);
                 }
                 else if(p.Mount == 3)
                 {
                     XRender::renderTexture(vScreenX[Z] + p.Location.X + LuigiFrameX[(p.State * 100) + (p.Frame * p.Direction)],
                                           vScreenY[Z] + p.Location.Y + LuigiFrameY[(p.State * 100) + (p.Frame * p.Direction)] + p.MountOffsetY,
                                           100, 100,
-                                          GFXLuigi[p.State],
+                                          XDepth::Player, GFXLuigi[p.State],
                                           pfrX(p.Frame * p.Direction),
                                           pfrY(p.Frame * p.Direction),
-                                          s, s, s);
+                                          s);
                 }
             }
             else if(p.Character == 3) // draw peach
@@ -210,10 +210,10 @@ void DrawPlayer(Player_t &p, const int Z)
                                 vScreenX[Z] + p.Location.X + PeachFrameX[(p.State * 100) + (p.Frame * p.Direction)],
                                 vScreenY[Z] + p.Location.Y + PeachFrameY[(p.State * 100) + (p.Frame * p.Direction)],
                                 100, 100,
-                                GFXPeach[p.State],
+                                XDepth::Player, GFXPeach[p.State],
                                 pfrX(p.Frame * p.Direction),
                                 pfrY(p.Frame * p.Direction),
-                                s, s, s);
+                                s);
                 }
                 else if(p.Mount == 1)
                 {
@@ -223,19 +223,19 @@ void DrawPlayer(Player_t &p, const int Z)
                                               vScreenY[Z] + p.Location.Y + PeachFrameY[(p.State * 100) + (p.Frame * p.Direction)],
                                               100,
                                               p.Location.Height - 26 - PeachFrameY[(p.State * 100) + (p.Frame * p.Direction)] - 2,
-                                              GFXPeach[p.State],
+                                              XDepth::Player, GFXPeach[p.State],
                                               pfrX(p.Frame * p.Direction),
                                               pfrY(p.Frame * p.Direction),
-                                              s, s, s);
+                                              s);
                     }
 
                     XRender::renderTexture(vScreenX[Z] + p.Location.X + p.Location.Width / 2.0 - 16,
                                           vScreenY[Z] + p.Location.Y + p.Location.Height - 30,
                                           32, 32,
-                                          GFX.Boot[p.MountType],
+                                          XDepth::Player, GFX.Boot[p.MountType],
                                           0,
                                           32 * p.MountFrame,
-                                          s, s, s);
+                                          s);
                 }
             }
             else if(p.Character == 4) // draw Toad
@@ -246,10 +246,10 @@ void DrawPlayer(Player_t &p, const int Z)
                                 vScreenX[Z] + p.Location.X + ToadFrameX[(p.State * 100) + (p.Frame * p.Direction)],
                                 vScreenY[Z] + p.Location.Y + ToadFrameY[(p.State * 100) + (p.Frame * p.Direction)],
                                 100, 100,
-                                GFXToad[p.State],
+                                XDepth::Player, GFXToad[p.State],
                                 pfrX(p.Frame * p.Direction),
                                 pfrY(p.Frame * p.Direction),
-                                s, s, s);
+                                s);
                 }
                 else if(p.Mount == 1)
                 {
@@ -260,10 +260,11 @@ void DrawPlayer(Player_t &p, const int Z)
                             XRender::renderTexture(vScreenX[Z] + p.Location.X + ToadFrameX[(p.State * 100) + (p.Frame * p.Direction)],
                                                   6 + vScreenY[Z] + p.Location.Y + ToadFrameY[(p.State * 100) + (p.Frame * p.Direction)],
                                                   100,
-                                                  p.Location.Height - 26 /*- p.MountOffsetY*/ - ToadFrameY[(p.State * 100) + (p.Frame * p.Direction)], GFXToad[p.State],
+                                                  p.Location.Height - 26 /*- p.MountOffsetY*/ - ToadFrameY[(p.State * 100) + (p.Frame * p.Direction)],
+                                                  XDepth::Player, GFXToad[p.State],
                                                   pfrX(p.Frame * p.Direction),
                                                   pfrY(p.Frame * p.Direction),
-                                                  s, s, s);
+                                                  s);
                         }
                         else
                         {
@@ -271,19 +272,19 @@ void DrawPlayer(Player_t &p, const int Z)
                                                   vScreenY[Z] + p.Location.Y + ToadFrameY[(p.State * 100) + (p.Frame * p.Direction)],
                                                   100,
                                                   p.Location.Height - 26 /*- p.MountOffsetY*/ - ToadFrameY[(p.State * 100) + (p.Frame * p.Direction)],
-                                                  GFXToad[p.State],
+                                                  XDepth::Player, GFXToad[p.State],
                                                   pfrX(p.Frame * p.Direction),
                                                   pfrY(p.Frame * p.Direction),
-                                                  s, s, s);
+                                                  s);
                         }
                     }
 
                     XRender::renderTexture(vScreenX[Z] + p.Location.X + p.Location.Width / 2.0 - 16,
                                           vScreenY[Z] + p.Location.Y + p.Location.Height - 30,
                                           32, 32,
-                                          GFX.Boot[p.MountType],
+                                          XDepth::Player, GFX.Boot[p.MountType],
                                           0,
-                                          32 * p.MountFrame, s, s, s);
+                                          32 * p.MountFrame, s);
                 }
             }
             else if(p.Character == 5) // draw link
@@ -293,10 +294,10 @@ void DrawPlayer(Player_t &p, const int Z)
                     XRender::renderTexture(vScreenX[Z] + p.Location.X + LinkFrameX[(p.State * 100) + (p.Frame * p.Direction)],
                                           vScreenY[Z] + p.Location.Y + LinkFrameY[(p.State * 100) + (p.Frame * p.Direction)],
                                           100, 100,
-                                          GFXLink[p.State],
+                                          XDepth::Player, GFXLink[p.State],
                                           pfrX(p.Frame * p.Direction),
                                           pfrY(p.Frame * p.Direction),
-                                          s, s, s);
+                                          s);
                 }
             }
         // peach/toad held npcs
@@ -328,7 +329,7 @@ void DrawPlayer(Player_t &p, const int Z)
                                                       vScreenY[Z] + NPC[p.HoldingNPC].Location.Y + NPCFrameOffsetY[NPC[p.HoldingNPC].Type],
                                                       NPC[p.HoldingNPC].Location.Width,
                                                       NPC[p.HoldingNPC].Location.Height,
-                                                      GFXNPC[NPC[p.HoldingNPC].Type],
+                                                      XDepth::Player, GFXNPC[NPC[p.HoldingNPC].Type],
                                                       0,
                                                       NPC[p.HoldingNPC].Frame * NPC[p.HoldingNPC].Location.Height);
                             }
@@ -338,7 +339,7 @@ void DrawPlayer(Player_t &p, const int Z)
                                                       vScreenY[Z] + NPC[p.HoldingNPC].Location.Y + NPCFrameOffsetY[NPC[p.HoldingNPC].Type] - NPCHeightGFX[NPC[p.HoldingNPC].Type] + NPC[p.HoldingNPC].Location.Height,
                                                       NPCWidthGFX[NPC[p.HoldingNPC].Type],
                                                       NPCHeightGFX[NPC[p.HoldingNPC].Type],
-                                                      GFXNPC[NPC[p.HoldingNPC].Type],
+                                                      XDepth::Player, GFXNPC[NPC[p.HoldingNPC].Type],
                                                       0,
                                                       NPC[p.HoldingNPC].Frame * NPCHeightGFX[NPC[p.HoldingNPC].Type]);
                             }
@@ -347,7 +348,7 @@ void DrawPlayer(Player_t &p, const int Z)
                 }
                 else
                 {
-                    DrawFrozenNPC(Z, p.HoldingNPC);
+                    DrawFrozenNPC(Z, p.HoldingNPC, XDepth::Player);
                 }
             }
 
@@ -359,13 +360,13 @@ void DrawPlayer(Player_t &p, const int Z)
                     {
                         XRender::renderTexture(vScreenX[Z] + p.Location.X + p.YoshiBX - 12,
                                               vScreenY[Z] + p.Location.Y + p.YoshiBY - 16,
-                                              32, 32, GFX.YoshiWings, 0, 0 + 32 * p.YoshiWingsFrame, s, s, s);
+                                              32, 32, XDepth::Player, GFX.YoshiWings, 0, 0 + 32 * p.YoshiWingsFrame, s);
                     }
                     else
                     {
                         XRender::renderTexture(vScreenX[Z] + p.Location.X + p.YoshiBX + 12,
                                               vScreenY[Z] + p.Location.Y + p.YoshiBY - 16,
-                                              32, 32, GFX.YoshiWings, 0, 0 + 32 * p.YoshiWingsFrame, s, s, s);
+                                              32, 32, XDepth::Player, GFX.YoshiWings, 0, 0 + 32 * p.YoshiWingsFrame, s);
                     }
                 }
                 if(p.Mount == 1 && p.MountType == 3)
@@ -374,13 +375,13 @@ void DrawPlayer(Player_t &p, const int Z)
                     {
                         XRender::renderTexture(vScreenX[Z] + p.Location.X - 24,
                                               vScreenY[Z] + p.Location.Y + p.Location.Height - 40,
-                                              32, 32, GFX.YoshiWings, 0, 0 + 32 * p.YoshiWingsFrame, s, s, s);
+                                              32, 32, XDepth::Player, GFX.YoshiWings, 0, 0 + 32 * p.YoshiWingsFrame, s);
                     }
                     else
                     {
                         XRender::renderTexture(vScreenX[Z] + p.Location.X + 16,
                                               vScreenY[Z] + p.Location.Y + p.Location.Height - 40,
-                                              32, 32, GFX.YoshiWings, 0, 0 + 32 * p.YoshiWingsFrame, s, s, s);
+                                              32, 32, XDepth::Player, GFX.YoshiWings, 0, 0 + 32 * p.YoshiWingsFrame, s);
                     }
                 }
             }

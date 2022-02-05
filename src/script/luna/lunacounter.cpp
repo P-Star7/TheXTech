@@ -345,8 +345,8 @@ void DeathCounter::Draw() const
 
     XRender::offsetViewportIgnore(true);
     // Print to screen in upper left
-    SuperPrint(gDemoCounterTitle, 3, 80, 27);
-    SuperPrint(printstr, 3, minusoffset, 48);
+    SuperPrint(gDemoCounterTitle, 3, 80, 27, XDepth::Meta);
+    SuperPrint(printstr, 3, minusoffset, 48, XDepth::Meta);
     XRender::offsetViewportIgnore(false);
 }
 

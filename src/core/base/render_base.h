@@ -28,6 +28,7 @@
 #include <SDL2/SDL_assert.h>
 
 #include "std_picture.h"
+#include "core/xcolor.h"
 
 #ifndef __EMSCRIPTEN__
 #   define USE_SCREENSHOTS_AND_RECS
@@ -317,52 +318,51 @@ public:
 
     // Draw primitives
 
-    void renderRect(int x, int y, int w, int h,
-                    float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f,
+    void renderRect(int x, int y, int w, int h, int16_t depth,
+                    XColor color,
                     bool filled = true);
 
-    void renderRectBR(int _left, int _top, int _right, int _bottom,
-                      float red, float green, float blue, float alpha);
+    void renderRectBR(int _left, int _top, int _right, int _bottom, int16_t depth,
+                      XColor color);
 
     void renderCircle(int cx, int cy,
-                      int radius,
-                      float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f,
+                      int radius, int16_t depth,
+                      XColor color,
                       bool filled = true);
 
     void renderCircleHole(int cx, int cy,
-                          int radius,
-                          float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
+                          int radius, int16_t depth,
+                          XColor color);
 
 
 
 
     // Draw texture
 
-    void renderTextureScaleEx(double xDst, double yDst, double wDst, double hDst,
+    void renderTextureScaleEx(double xDst, double yDst, double wDst, double hDst, int16_t depth,
                               StdPicture &tx,
                               int xSrc, int ySrc,
                               int wSrc, int hSrc,
                               double rotateAngle = 0.0, FPoint_t *center = nullptr, unsigned int flip = X_FLIP_NONE,
-                              float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
+                              XColor color = XColor_None);
 
-    void renderTextureScale(double xDst, double yDst, double wDst, double hDst,
+    void renderTextureScale(double xDst, double yDst, double wDst, double hDst, int16_t depth,
                             StdPicture &tx,
-                            float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
+                            XColor color = XColor_None);
 
-    void renderTexture(double xDst, double yDst, double wDst, double hDst,
+    void renderTexture(double xDst, double yDst, double wDst, double hDst, int16_t depth,
                                StdPicture &tx,
                                int xSrc, int ySrc,
-                               float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
+                               XColor color = XColor_None);
 
-    void renderTextureFL(double xDst, double yDst, double wDst, double hDst,
+    void renderTextureFL(double xDst, double yDst, double wDst, double hDst, int16_t depth,
                                  StdPicture &tx,
                                  int xSrc, int ySrc,
                                  double rotateAngle = 0.0, FPoint_t *center = nullptr, unsigned int flip = X_FLIP_NONE,
-                                 float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
+                                 XColor color = XColor_None);
 
-    void renderTexture(float xDst, float yDst, StdPicture &tx,
-                               float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f);
-
+    void renderTexture(float xDst, float yDst, int16_t depth, StdPicture &tx,
+                               XColor color = XColor_None);
 
 
     // Retrieve raw pixel data

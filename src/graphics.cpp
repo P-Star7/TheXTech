@@ -584,7 +584,7 @@ void ScreenShot()
     TakeScreen = false;
 }
 
-void DrawFrozenNPC(int Z, int A)
+void DrawFrozenNPC(int Z, int A, int16_t depth)
 {
     auto &n = NPC[A];
     if((vScreenCollision(Z, n.Location) ||
@@ -605,26 +605,26 @@ void DrawFrozenNPC(int Z, int A)
                                     float(vScreenY[Z] + n.Location.Y + 2),
                                     float(n.Location.Width - 4),
                                     float(n.Location.Height - 4),
-                                    GFXNPCBMP[content],
-                                    2, 2 + contentFrame * NPCHeight[content], c, c, c);
+                                    depth, GFXNPCBMP[content],
+                                    2, 2 + contentFrame * NPCHeight[content], XColor(c, c, c));
         }
 
         // draw ice
          XRender::renderTexture(float(vScreenX[Z] + n.Location.X + NPCFrameOffsetX[n.Type]),
                                 float(vScreenY[Z] + n.Location.Y + NPCFrameOffsetY[n.Type]),
                                 float(n.Location.Width - 6), float(n.Location.Height - 6),
-                                GFXNPCBMP[n.Type], 0, 0, c, c, c);
+                                depth, GFXNPCBMP[n.Type], 0, 0, XColor(c, c, c));
          XRender::renderTexture(float(vScreenX[Z] + n.Location.X + NPCFrameOffsetX[n.Type] + n.Location.Width - 6),
                                 float(vScreenY[Z] + n.Location.Y + NPCFrameOffsetY[n.Type]),
                                 6, float(n.Location.Height - 6),
-                                GFXNPCBMP[n.Type], 128 - 6, 0, c, c, c);
+                                depth, GFXNPCBMP[n.Type], 128 - 6, 0, XColor(c, c, c));
          XRender::renderTexture(float(vScreenX[Z] + n.Location.X + NPCFrameOffsetX[n.Type]),
                                 float(vScreenY[Z] + n.Location.Y + NPCFrameOffsetY[n.Type] + n.Location.Height - 6),
                                 float(n.Location.Width - 6), 6,
-                                GFXNPCBMP[n.Type], 0, 128 - 6, c, c, c);
+                                depth, GFXNPCBMP[n.Type], 0, 128 - 6, XColor(c, c, c));
          XRender::renderTexture(float(vScreenX[Z] + n.Location.X + NPCFrameOffsetX[n.Type] + n.Location.Width - 6),
                                 float(vScreenY[Z] + n.Location.Y + NPCFrameOffsetY[n.Type] + n.Location.Height - 6),
-                                6, 6, GFXNPCBMP[n.Type],
-                                128 - 6, 128 - 6, c, c, c);
+                                6, 6, depth, GFXNPCBMP[n.Type],
+                                128 - 6, 128 - 6, XColor(c, c, c));
     }
 }

@@ -68,13 +68,16 @@ void DrawMessage(const std::string& SuperText)
     {
         XRender::renderRect(ScreenW/2 - TextBoxW / 2 ,
                               BoxY_Start,
-                              TextBoxW, totalHeight, 0.f, 0.f, 0.f, 1.f);
+                              TextBoxW, totalHeight,
+                              XDepth::UI, XColor(0.f, 0.f, 0.f));
         XRender::renderRect(ScreenW/2 - TextBoxW / 2 + 2,
                               BoxY_Start + 2,
-                              TextBoxW - 4, totalHeight - 4, 1.f, 1.f, 1.f, 1.f);
+                              TextBoxW - 4, totalHeight - 4,
+                              XDepth::UI, XColor(1.f, 1.f, 1.f));
         XRender::renderRect(ScreenW/2 - TextBoxW / 2 + 4,
                               BoxY_Start + 4,
-                              TextBoxW - 8, totalHeight - 8, 8.f/255.f, 96.f/255.f, 168.f/255.f, 1.f);
+                              TextBoxW - 8, totalHeight - 8,
+                              XDepth::UI, XColor(8, 96, 168));
     }
 #ifndef BUILT_IN_TEXTBOX
     else
@@ -82,7 +85,10 @@ void DrawMessage(const std::string& SuperText)
         // carefully render the background image...
         XRender::renderTexture(ScreenW / 2 - TextBoxW / 2,
                               BoxY_Start,
-                              TextBoxW, 20, GFX.TextBox, 0, 0);
+                              TextBoxW, 20,
+                              XDepth::UI,
+                              GFX.TextBox,
+                              0, 0);
         int rndMidH = totalHeight - 20 - 20;
         int gfxMidH = GFX.TextBox.h - 20 - 20;
         int vertReps = rndMidH / gfxMidH + 1;
@@ -92,16 +98,25 @@ void DrawMessage(const std::string& SuperText)
             if((i+1) * gfxMidH <= rndMidH)
                 XRender::renderTexture(ScreenW / 2 - TextBoxW / 2,
                                       BoxY_Start + 20 + i*gfxMidH,
-                                      TextBoxW, gfxMidH, GFX.TextBox, 0, 20);
+                                      TextBoxW, gfxMidH,
+                                      XDepth::UI,
+                                      GFX.TextBox,
+                                      0, 20);
             else
                 XRender::renderTexture(ScreenW / 2 - TextBoxW / 2,
                                       BoxY_Start + 20 + i*gfxMidH,
-                                      TextBoxW, rndMidH - i*gfxMidH, GFX.TextBox, 0, 20);
+                                      TextBoxW, rndMidH - i*gfxMidH,
+                                      XDepth::UI,
+                                      GFX.TextBox,
+                                      0, 20);
         }
 
         XRender::renderTexture(ScreenW / 2 - TextBoxW / 2,
                               BoxY_Start + 20 + rndMidH,
-                              TextBoxW, 20, GFX.TextBox, 0, GFX.TextBox.h - 20);
+                              TextBoxW, 20,
+                              XDepth::UI,
+                              GFX.TextBox,
+                              0, GFX.TextBox.h - 20);
     }
 #endif
 
@@ -135,14 +150,16 @@ void DrawMessage(const std::string& SuperText)
             SuperPrint(size_t(lastWord) - size_t(lineStart), SuperText.c_str() + size_t(lineStart),
                 4,
                 ScreenW/2 - ((lastWord - lineStart) * charWidth)/2,
-                BoxY);
+                BoxY,
+                XDepth::UI);
         }
         else
         {
             SuperPrint(size_t(lastWord) - size_t(lineStart), SuperText.c_str() + size_t(lineStart),
                 4,
                 ScreenW/2 - TextBoxW / 2 + 12,
-                BoxY);
+                BoxY,
+                XDepth::UI);
         }
 
         lineStart = lastWord;

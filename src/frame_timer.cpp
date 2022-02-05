@@ -74,37 +74,37 @@ void PerformanceStats_t::print()
         SuperPrint(fmt::sprintf_ne("DRAW: T=%03d S=%03d P=%03d L=%03d, SUM=%03d",
                                    renderedTiles, renderedScenes, renderedPaths, renderedLevels,
                                    (renderedTiles + renderedScenes + renderedPaths + renderedLevels)),
-                   3, 45, 8);
+                   3, 45, 8, XDepth::Meta);
         SuperPrint(fmt::sprintf_ne("CHEK: T=%03d S=%03d P=%03d L=%03d, SUM=%03d",
                                    checkedTiles, checkedScenes, checkedPaths, checkedLevels,
                                    (checkedTiles + checkedScenes + checkedPaths + checkedLevels)),
-                   3, 45, 26);
+                   3, 45, 26, XDepth::Meta);
     }
     else
     {
-        XRender::renderRect(42, 6, 745, 72, 0.0f,0.0f, 0.0f, 0.3f, true);
+        XRender::renderRect(42, 6, 745, 72, XDepth::Meta, XColor(0.0f, 0.0f, 0.0f, 0.3f), true);
         SuperPrint(fmt::sprintf_ne("DRAW: B=%05d Z=%04d G=%04d N=%04d, E=%03d",
                                    renderedBlocks, renderedSzBlocks, renderedBGOs, renderedNPCs, renderedEffects,
                                    (renderedBlocks + renderedSzBlocks + renderedBGOs + renderedNPCs + renderedEffects)),
-                   3, 45, 8, 0.5f, 1.f, 1.f);
+                   3, 45, 8, XDepth::Meta, XColor(0.5f, 1.f, 1.f));
         SuperPrint(fmt::sprintf_ne("DRAW: SUMM=%d", (renderedBlocks + renderedSzBlocks + renderedBGOs + renderedNPCs + renderedEffects)),
-                   3, 45, 26, 0.5f, 1.f, 1.f);
+                   3, 45, 26, XDepth::Meta, XColor(0.5f, 1.f, 1.f));
         SuperPrint(fmt::sprintf_ne("CHEK: B=%05d Z=%04d G=%04d N=%04d, E=%03d",
                                    checkedBlocks, checkedSzBlocks, checkedBGOs, checkedNPCs, checkedEffects),
-                   3, 45, 44, 0.5f, 1.f, 1.f);
+                   3, 45, 44, XDepth::Meta, XColor(0.5f, 1.f, 1.f));
         SuperPrint(fmt::sprintf_ne("CHEK: SUMM=%d", (checkedBlocks + checkedSzBlocks+ checkedBGOs + checkedNPCs + checkedEffects)),
-                   3, 45, 62, 0.5f, 1.f, 1.f);
+                   3, 45, 62, XDepth::Meta, XColor(0.5f, 1.f, 1.f));
         // WIP
 //        SuperPrint(fmt::sprintf_ne("PHYS: B%03d G%03d N%03d, S:%03d",
 //                                   physScannedBlocks, physScannedBGOs, physScannedNPCs,
 //                                   (physScannedBlocks + physScannedBGOs + physScannedNPCs)),
-//                   3, 45, 44);
+//                   3, 45, 44, XDepth::Meta);
     }
 
     if(GameMenu)
     {
         SuperPrint(fmt::sprintf_ne("MENU-MODE: %d", MenuMode),
-                   3, 45, 70, 0.5f, 1.f, 1.f);
+                   3, 45, 70, XDepth::Meta, XColor(0.5f, 1.f, 1.f));
     }
 
     XRender::offsetViewportIgnore(false);

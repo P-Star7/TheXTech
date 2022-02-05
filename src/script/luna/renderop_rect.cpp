@@ -55,14 +55,16 @@ void RenderRectOp::Draw(Renderer *renderer)
                             Maths::iRound(sy1),
                             Maths::iRound(sx2 - sx1),
                             Maths::iRound(sy2 - sy1),
-                            fillColor.r, fillColor.g, fillColor.b, fillColor.a, true);
+                            XDepth::Default,
+                            XColor(fillColor.r, fillColor.g, fillColor.b, fillColor.a), true);
 
     if(borderColor.a > 0.0f)
         XRender::renderRect(Maths::iRound(sx1),
                             Maths::iRound(sy1),
                             Maths::iRound(sx2 - sx1),
                             Maths::iRound(sy2 - sy1),
-                            borderColor.r, borderColor.g, borderColor.b, borderColor.a, false);
+                            XDepth::Default,
+                            XColor(borderColor.r, borderColor.g, borderColor.b, borderColor.a), false);
 
     if(!sceneCoords)
         XRender::offsetViewportIgnore(false);

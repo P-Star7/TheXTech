@@ -661,20 +661,20 @@ void UpdateLoadREAL()
         XRender::setTargetTexture();
         XRender::clearBuffer();
         if(!gfxLoaderTestMode)
-            XRender::renderTexture(0, 0, GFX.MenuGFX[4]);
+            XRender::renderTexture(0, 0, XDepth::HUD, GFX.MenuGFX[4]);
         else
         {
             if(!state.empty())
-                SuperPrint(state, 3, 10, 10);
+                SuperPrint(state, 3, 10, 10, XDepth::HUD);
             else
-                SuperPrint("Loading data...", 3, 10, 10);
+                SuperPrint("Loading data...", 3, 10, 10, XDepth::HUD);
         }
 
-        XRender::renderTexture(632, 576, GFX.Loader);
-        XRender::renderTexture(760, 560, GFX.LoadCoin.w, GFX.LoadCoin.h / 4, GFX.LoadCoin, 0, 32 * LoadCoins);
+        XRender::renderTexture(632, 576, XDepth::HUD, GFX.Loader);
+        XRender::renderTexture(760, 560, GFX.LoadCoin.w, GFX.LoadCoin.h / 4, XDepth::HUD, GFX.LoadCoin, 0, 32 * LoadCoins);
 
         if(gfxLoaderThreadingMode && alphaFader >= 0.f)
-            XRender::renderRect(0, 0, ScreenW, ScreenH, 0.f, 0.f, 0.f, alphaFader);
+            XRender::renderRect(0, 0, ScreenW, ScreenH, XDepth::HUD, XColor(0.f, 0.f, 0.f, alphaFader));
 
         XRender::repaint();
         XRender::setTargetScreen();

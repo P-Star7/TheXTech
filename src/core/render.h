@@ -22,8 +22,9 @@
 #ifndef RENDER_HHHHHH
 #define RENDER_HHHHHH
 
-#   include <SDL2/SDL_stdinc.h>
-#   include "base/render_base.h"
+#include "xcolor.h"
+#include <SDL2/SDL_stdinc.h>
+#include "base/render_base.h"
 
 #ifndef RENDER_CUSTOM
 #   define E_INLINE SDL_FORCE_INLINE
@@ -33,9 +34,71 @@
 #   define TAIL ;
 #endif
 
+namespace XDepth
+{
+    constexpr int16_t Layer(int8_t layer)
+    {
+        return (int16_t)layer * 256;
+    }
+    constexpr int16_t Offset(double offset)
+    {
+        return (int16_t)(offset * 256);
+    }
+
+    // for arbitrary draws, safe to use this:
+    constexpr int16_t Default = 0;
+
+    // in 3D effect, this is 2 units back
+    constexpr int16_t Background2 = Layer(-100);
+    // in 3D effect, this is 1 unit back
+    constexpr int16_t BGO_Back = Layer(-95);
+    constexpr int16_t SBlock = Layer(-90);
+    constexpr int16_t BGO = Layer(-85);
+    constexpr int16_t BGO_Lock = Layer(-80);
+    // in 3D effect, this is screen plane
+    constexpr int16_t NPC_Back = Layer(-75);
+    constexpr int16_t Block = Layer(-65);
+    constexpr int16_t Effect_Back = Layer(-60);
+    constexpr int16_t NPC_Coin = Layer(-55);
+    constexpr int16_t NPC_Iced = Layer(-50);
+    constexpr int16_t NPC_Normal = Layer(-45);
+    constexpr int16_t ChatIcon = Layer(-40);
+    constexpr int16_t ClownCar = Layer(-35);
+    constexpr int16_t NPC_Held = Layer(-32); // was incorrectly listed as -70
+    constexpr int16_t Mount = Layer(-30);
+    constexpr int16_t Player = Layer(-25);
+
+    constexpr int16_t BGO_Front = Layer(-20);
+    constexpr int16_t NPC_Front = Layer(-15);
+    constexpr int16_t Block_Front = Layer(-10);
+    constexpr int16_t Effect = Layer(-5);
+    constexpr int16_t Phys = Layer(-4);
+
+    // in 3D effect, this is 1 unit forewards
+    constexpr int16_t HUD = Layer(5);
+    constexpr int16_t NPC_Dropped = Layer(10);
+    constexpr int16_t ScreenEffect = Layer(15);
+    constexpr int16_t UI = Layer(20);
+    constexpr int16_t Meta = Layer(25);
+    constexpr int16_t EditorItem = Layer(30);
+    constexpr int16_t Cursor = Layer(35);
+    constexpr int16_t TouchscreenController = Layer(40);
+
+    // in 3D effect, this is 2 units back
+    constexpr int16_t WorldTile = Layer(-120);
+    constexpr int16_t WorldScene = Layer(-115);
+    constexpr int16_t WorldPath = Layer(-110);
+    constexpr int16_t WorldLevel = Layer(-105);
+    constexpr int16_t WorldMusic = Layer(-100);
+    constexpr int16_t WorldPlayer = Layer(-100);
+    // in 3D effect, this is 1 unit back
+    constexpr int16_t WorldEffect = Layer(-90);
+    // in 3D effect, this is screen plane
+    constexpr int16_t WorldFrame = Layer(-75);
+}
+
 namespace XRender
 {
-
 
 /*!
  * \brief Identify does render engine works or not
@@ -254,115 +317,114 @@ E_INLINE void clearBuffer() TAIL
 
 // Draw primitives
 
-E_INLINE void renderRect(int x, int y, int w, int h,
-                        float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f,
+E_INLINE void renderRect(int x, int y, int w, int h, int16_t depth,
+                        XColor color,
                         bool filled = true) TAIL
 #ifndef RENDER_CUSTOM
 {
-    g_render->renderRect(x, y, w, h,
-                         red, green, blue, alpha,
+    g_render->renderRect(x, y, w, h, depth,
+                         color,
                          filled);
 }
 #endif
 
-E_INLINE void renderRectBR(int _left, int _top, int _right, int _bottom,
-                           float red, float green, float blue, float alpha) TAIL
+E_INLINE void renderRectBR(int _left, int _top, int _right, int _bottom, int16_t depth,
+                           XColor color) TAIL
 #ifndef RENDER_CUSTOM
 {
-    g_render->renderRectBR(_left, _top, _right, _bottom,
-                           red, green, blue, alpha);
+    g_render->renderRectBR(_left, _top, _right, _bottom, depth,
+                           color);
 }
 #endif
 
 E_INLINE void renderCircle(int cx, int cy,
-                          int radius,
-                          float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f,
+                          int radius, int16_t depth,
+                          XColor color,
                           bool filled = true) TAIL
 #ifndef RENDER_CUSTOM
 {
     g_render->renderCircle(cx, cy,
-                           radius,
-                           red, green, blue, alpha,
+                           radius, depth,
+                           color,
                            filled);
 }
 #endif
 
 E_INLINE void renderCircleHole(int cx, int cy,
-                              int radius,
-                              float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) TAIL
+                              int radius, int16_t depth,
+                              XColor color) TAIL
 #ifndef RENDER_CUSTOM
 {
     g_render->renderCircleHole(cx, cy,
-                               radius,
-                               red, green, blue, alpha);
+                               radius, depth,
+                               color);
 }
 #endif
 
 
 // Draw texture
 
-E_INLINE void renderTextureScaleEx(double xDst, double yDst, double wDst, double hDst,
+E_INLINE void renderTextureScaleEx(double xDst, double yDst, double wDst, double hDst, int16_t depth,
                           StdPicture &tx,
                           int xSrc, int ySrc,
                           int wSrc, int hSrc,
                           double rotateAngle = 0.0, FPoint_t *center = nullptr, unsigned int flip = X_FLIP_NONE,
-                          float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) TAIL
+                          XColor color = XColor_None) TAIL
 #ifndef RENDER_CUSTOM
 {
-    g_render->renderTextureScaleEx(xDst, yDst, wDst, hDst,
+    g_render->renderTextureScaleEx(xDst, yDst, wDst, hDst, depth,
                                    tx,
                                    xSrc, ySrc,
                                    wSrc, hSrc,
                                    rotateAngle, center, flip,
-                                   red, green, blue, alpha);
+                                   color);
 }
 #endif
 
-E_INLINE void renderTextureScale(double xDst, double yDst, double wDst, double hDst,
+E_INLINE void renderTextureScale(double xDst, double yDst, double wDst, double hDst, int16_t depth,
                         StdPicture &tx,
-                        float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) TAIL
+                        XColor color = XColor_None) TAIL
 #ifndef RENDER_CUSTOM
 {
-    g_render->renderTextureScale(xDst, yDst, wDst, hDst,
+    g_render->renderTextureScale(xDst, yDst, wDst, hDst, depth,
                                  tx,
-                                 red, green, blue, alpha);
+                                 color);
 }
 #endif
 
-E_INLINE void renderTexture(double xDst, double yDst, double wDst, double hDst,
+E_INLINE void renderTexture(double xDst, double yDst, double wDst, double hDst, int16_t depth,
                            StdPicture &tx,
                            int xSrc, int ySrc,
-                           float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) TAIL
+                           XColor color = XColor_None) TAIL
 #ifndef RENDER_CUSTOM
 {
-    g_render->renderTexture(xDst, yDst, wDst, hDst,
+    g_render->renderTexture(xDst, yDst, wDst, hDst, depth,
                             tx,
                             xSrc, ySrc,
-                            red, green, blue, alpha);
+                            color);
 }
 #endif
 
-E_INLINE void renderTextureFL(double xDst, double yDst, double wDst, double hDst,
+E_INLINE void renderTextureFL(double xDst, double yDst, double wDst, double hDst, int16_t depth,
                              StdPicture &tx,
                              int xSrc, int ySrc,
                              double rotateAngle = 0.0, FPoint_t *center = nullptr, unsigned int flip = X_FLIP_NONE,
-                             float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) TAIL
+                             XColor color = XColor_None) TAIL
 #ifndef RENDER_CUSTOM
 {
-    g_render->renderTextureFL(xDst, yDst, wDst, hDst,
+    g_render->renderTextureFL(xDst, yDst, wDst, hDst, depth,
                               tx,
                               xSrc, ySrc,
                               rotateAngle, center, flip,
-                              red, green, blue, alpha);
+                              color);
 }
 #endif
 
-E_INLINE void renderTexture(float xDst, float yDst, StdPicture &tx,
-                           float red = 1.f, float green = 1.f, float blue = 1.f, float alpha = 1.f) TAIL
+E_INLINE void renderTexture(float xDst, float yDst, int16_t depth, StdPicture &tx,
+                           XColor color = XColor_None) TAIL
 #ifndef RENDER_CUSTOM
 {
-    g_render->renderTexture(xDst, yDst, tx,
-                            red, green, blue, alpha);
+    g_render->renderTexture(xDst, yDst, depth, tx, color);
 }
 #endif
 

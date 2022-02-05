@@ -70,7 +70,7 @@ void RenderStringOp::Draw(Renderer *renderer)
     if(!sceneCoords)
         XRender::offsetViewportIgnore(true);
 
-    SuperPrint(m_StringSize, m_String, m_FontType, x, y);
+    SuperPrint(m_StringSize, m_String, m_FontType, x, y, XDepth::Default);
 
     if(!sceneCoords)
         XRender::offsetViewportIgnore(false);

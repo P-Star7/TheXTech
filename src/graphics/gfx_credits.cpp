@@ -56,8 +56,8 @@ static float s_alphaFromY(double y)
 
 void DrawCredits()
 {
-    XRender::renderRect(0, 0, ScreenW, Maths::iRound(CreditChop), 0.f, 0.f, 0.f);
-    XRender::renderRect(0, ScreenH - Maths::iRound(CreditChop), ScreenW, std::ceil(CreditChop), 0.f, 0.f, 0.f);
+    XRender::renderRect(0, 0, ScreenW, Maths::iRound(CreditChop), XDepth::ScreenEffect, XColor(0.f, 0.f, 0.f));
+    XRender::renderRect(0, ScreenH - Maths::iRound(CreditChop), ScreenW, std::ceil(CreditChop), XDepth::ScreenEffect, XColor(0.f, 0.f, 0.f));
 
     if(CreditChop > 100)
     {
@@ -94,6 +94,7 @@ void DrawCredits()
                    g_gameInfo.creditsFont,
                    static_cast<float>(l.X),
                    y,
-                   1.0f, 1.0f, 1.0f, s_alphaFromY(y));
+                   XDepth::HUD,
+                   XColor(1.0f, 1.0f, 1.0f, s_alphaFromY(y)));
     }
 }

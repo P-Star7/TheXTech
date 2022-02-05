@@ -1280,15 +1280,15 @@ bool mainMenuUpdate()
 static void s_drawGameTypeTitle(int x, int y)
 {
     if(menuBattleMode)
-        SuperPrint(g_mainMenu.mainBattleGame, 3, x, y, 0.3f, 0.3f, 1.0f);
+        SuperPrint(g_mainMenu.mainBattleGame, 3, x, y, XDepth::UI, XColor(0.3f, 0.3f, 1.0f));
     else
     {
         float r = menuPlayersNum == 1 ? 1.f : 0.3f;
         float g = menuPlayersNum == 2 ? 1.f : 0.3f;
         if(menuPlayersNum == 1)
-            SuperPrint(g_mainMenu.main1PlayerGame, 3, x, y, r, g, 0.3f);
+            SuperPrint(g_mainMenu.main1PlayerGame, 3, x, y, XDepth::UI, XColor(r, g, 0.3f));
         else
-            SuperPrint(g_mainMenu.mainMultiplayerGame, 3, x, y, r, g, 0.3f);
+            SuperPrint(g_mainMenu.mainMultiplayerGame, 3, x, y, XDepth::UI, XColor(r, g, 0.3f));
     }
 }
 
@@ -1300,29 +1300,27 @@ static void s_drawGameSaves()
     {
         if(SaveSlot[A] >= 0)
         {
-            SuperPrint(fmt::format_ne("SLOT {0} ... {1}%", A, SaveSlot[A]), 3, 300, 320 + (A * 30));
+            SuperPrint(fmt::format_ne("SLOT {0} ... {1}%", A, SaveSlot[A]), 3, 300, 320 + (A * 30), XDepth::UI);
             if(SaveStars[A] > 0)
             {
                 XRender::renderTexture(560, 320 + (A * 30) + 1,
-                                      GFX.Interface[5].w, GFX.Interface[5].h,
-                                      GFX.Interface[5], 0, 0);
+                                      GFX.Interface[5], XDepth::UI);
                 XRender::renderTexture(560 + 24, 320 + (A * 30) + 2,
-                                      GFX.Interface[1].w, GFX.Interface[1].h,
-                                      GFX.Interface[1], 0, 0);
-                SuperPrint(fmt::format_ne(" {0}", SaveStars[A]), 3, 588, 320 + (A * 30));
+                                      GFX.Interface[1], XDepth::UI);
+                SuperPrint(fmt::format_ne(" {0}", SaveStars[A]), 3, 588, 320 + (A * 30), XDepth::UI);
             }
         }
         else
         {
-            SuperPrint(fmt::format_ne("SLOT {0} ... NEW GAME", A), 3, 300, 320 + (A * 30));
+            SuperPrint(fmt::format_ne("SLOT {0} ... NEW GAME", A), 3, 300, 320 + (A * 30), XDepth::UI);
         }
     }
 
     if(MenuMode == MENU_SELECT_SLOT_1P || MenuMode == MENU_SELECT_SLOT_2P)
     {
-        SuperPrint("COPY SAVE", 3, 300, 320 + (A * 30));
+        SuperPrint("COPY SAVE", 3, 300, 320 + (A * 30), XDepth::UI);
         A++;
-        SuperPrint("ERASE SAVE", 3, 300, 320 + (A * 30));
+        SuperPrint("ERASE SAVE", 3, 300, 320 + (A * 30), XDepth::UI);
     }
 }
 
@@ -1336,21 +1334,19 @@ void mainMenuDraw()
     if(MenuMode != MENU_1PLAYER_GAME && MenuMode != MENU_2PLAYER_GAME && MenuMode != MENU_BATTLE_MODE)
         worldCurs = 0;
 
-    XRender::renderTexture(0, 0, GFX.MenuGFX[1].w, GFX.MenuGFX[1].h, GFX.MenuGFX[1], 0, 0);
-    XRender::renderTexture(ScreenW / 2 - GFX.MenuGFX[2].w / 2, 70,
-            GFX.MenuGFX[2].w, GFX.MenuGFX[2].h, GFX.MenuGFX[2], 0, 0);
+    XRender::renderTexture(0, 0, XDepth::Effects, GFX.MenuGFX[1]);
+    XRender::renderTexture(ScreenW / 2 - GFX.MenuGFX[2].w / 2, 70, XDepth::HUD, GFX.MenuGFX[2]);
 
-    XRender::renderTexture(ScreenW / 2 - GFX.MenuGFX[3].w / 2, 576,
-            GFX.MenuGFX[3].w, GFX.MenuGFX[3].h, GFX.MenuGFX[3], 0, 0);
+    XRender::renderTexture(ScreenW / 2 - GFX.MenuGFX[3].w / 2, 576, XDepth::HUD, GFX.MenuGFX[3]);
 
     if(SDL_AtomicGet(&loading))
     {
         if(SDL_AtomicGet(&loadingProgrssMax) <= 0)
-            SuperPrint(g_mainMenu.loading, 3, 300, 350);
+            SuperPrint(g_mainMenu.loading, 3, 300, 350, XDepth::UI);
         else
         {
             int progress = (SDL_AtomicGet(&loadingProgrss) * 100) / SDL_AtomicGet(&loadingProgrssMax);
-            SuperPrint(fmt::format_ne("{0} {1}%", g_mainMenu.loading, progress), 3, 300, 350);
+            SuperPrint(fmt::format_ne("{0} {1}%", g_mainMenu.loading, progress), 3, 300, 350, XDepth::UI);
         }
     }
 
@@ -1358,14 +1354,14 @@ void mainMenuDraw()
     else if(MenuMode == MENU_MAIN)
     {
         int i = 0;
-        SuperPrint(g_gameInfo.disableTwoPlayer ? g_mainMenu.mainStartGame : g_mainMenu.main1PlayerGame, 3, 300, 350+30*(i++));
+        SuperPrint(g_gameInfo.disableTwoPlayer ? g_mainMenu.mainStartGame : g_mainMenu.main1PlayerGame, 3, 300, 350+30*(i++), XDepth::UI);
         if(!g_gameInfo.disableTwoPlayer)
-            SuperPrint(g_mainMenu.mainMultiplayerGame, 3, 300, 350+30*(i++));
+            SuperPrint(g_mainMenu.mainMultiplayerGame, 3, 300, 350+30*(i++), XDepth::UI);
         if(!g_gameInfo.disableBattleMode)
-            SuperPrint(g_mainMenu.mainBattleGame, 3, 300, 350+30*(i++));
-        SuperPrint(g_mainMenu.mainOptions, 3, 300, 350+30*(i++));
-        SuperPrint(g_mainMenu.mainExit, 3, 300, 350+30*(i++));
-        XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30), 16, 16, GFX.MCursor[0], 0, 0);
+            SuperPrint(g_mainMenu.mainBattleGame, 3, 300, 350+30*(i++), XDepth::UI);
+        SuperPrint(g_mainMenu.mainOptions, 3, 300, 350+30*(i++), XDepth::UI);
+        SuperPrint(g_mainMenu.mainExit, 3, 300, 350+30*(i++), XDepth::UI);
+        XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30), XDepth::UI, GFX.MCursor[0]);
     }
 
     // Character select
@@ -1497,76 +1493,75 @@ void mainMenuDraw()
             auto w = SelectWorld[A];
             B = A - minShow + 1;
             float r = w.highlight ? 0.f : 1.f;
-            SuperPrint(w.WorldName, 3, 300, 320 + (B * 30), r, 1.f, 1.f, 1.f);
+            SuperPrint(w.WorldName, 3, 300, 320 + (B * 30), XDepth::UI, XColor(r, 1.f, 1.f, 1.f));
         }
 
         // render the scroll indicators
         if(minShow > 1)
-            XRender::renderTexture(400 - 8, 350 - 20, GFX.MCursor[1]);
+            XRender::renderTexture(400 - 8, 350 - 20, XDepth::UI, GFX.MCursor[1]);
 
         if(maxShow < NumSelectWorld)
-            XRender::renderTexture(400 - 8, 490, GFX.MCursor[2]);
+            XRender::renderTexture(400 - 8, 490, XDepth::UI, GFX.MCursor[2]);
 
         B = MenuCursor - minShow + 1;
 
         if(B >= 0 && B < 5)
-            XRender::renderTexture(300 - 20, 350 + (B * 30), GFX.MCursor[0].w, GFX.MCursor[0].h, GFX.MCursor[0], 0, 0);
+            XRender::renderTexture(300 - 20, 350 + (B * 30), XDepth::UI, GFX.MCursor[0]);
     }
 
     else if(MenuMode == MENU_SELECT_SLOT_1P || MenuMode == MENU_SELECT_SLOT_2P) // Save Select
     {
         s_drawGameTypeTitle(300, 280);
-        SuperPrint(SelectWorld[selWorld].WorldName, 3, 300, 310, 0.6f, 1.f, 1.f);
+        SuperPrint(SelectWorld[selWorld].WorldName, 3, 300, 310, XDepth::UI, XColor(0.6f, 1.f, 1.f));
         s_drawGameSaves();
-        XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30), GFX.MCursor[0]);
+        XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30), XDepth::UI, GFX.MCursor[0]);
     }
 
     else if(MenuMode == MENU_SELECT_SLOT_1P_COPY_S1 || MenuMode == MENU_SELECT_SLOT_2P_COPY_S1 ||
             MenuMode == MENU_SELECT_SLOT_1P_COPY_S2 || MenuMode == MENU_SELECT_SLOT_2P_COPY_S2) // Copy save
     {
         s_drawGameTypeTitle(300, 280);
-        SuperPrint(SelectWorld[selWorld].WorldName, 3, 300, 310, 0.6f, 1.f, 1.f);
+        SuperPrint(SelectWorld[selWorld].WorldName, 3, 300, 310, XDepth::UI, XColor(0.6f, 1.f, 1.f));
         s_drawGameSaves();
 
         if(MenuMode == MENU_SELECT_SLOT_1P_COPY_S1 || MenuMode == MENU_SELECT_SLOT_2P_COPY_S1)
-            SuperPrint("Select the source slot", 3, 300, 320 + (5 * 30), 0.7f, 0.7f, 1.0f);
+            SuperPrint("Select the source slot", 3, 300, 320 + (5 * 30), XDepth::UI, XColor(0.7f, 0.7f, 1.0f));
         else if(MenuMode == MENU_SELECT_SLOT_1P_COPY_S2 || MenuMode == MENU_SELECT_SLOT_2P_COPY_S2)
-            SuperPrint("Now select the target", 3, 300, 320 + (5 * 30), 0.7f, 1.0f, 0.7f);
+            SuperPrint("Now select the target", 3, 300, 320 + (5 * 30), XDepth::UI, XColor(0.7f, 1.0f, 0.7f));
 
         if(MenuMode == MENU_SELECT_SLOT_1P_COPY_S2 || MenuMode == MENU_SELECT_SLOT_2P_COPY_S2)
         {
-            XRender::renderTexture(300 - 20, 350 + ((menuCopySaveSrc - 1) * 30), GFX.MCursor[0]);
-            XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30), GFX.MCursor[3]);
+            XRender::renderTexture(300 - 20, 350 + ((menuCopySaveSrc - 1) * 30), XDepth::UI, GFX.MCursor[0]);
+            XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30), XDepth::UI, GFX.MCursor[3]);
         }
         else
-            XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30), GFX.MCursor[0]);
+            XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30), XDepth::UI, GFX.MCursor[0]);
     }
 
     else if(MenuMode == MENU_SELECT_SLOT_1P_DELETE || MenuMode == MENU_SELECT_SLOT_2P_DELETE) // Copy save
     {
         s_drawGameTypeTitle(300, 280);
-        SuperPrint(SelectWorld[selWorld].WorldName, 3, 300, 310, 0.6f, 1.f, 1.f);
+        SuperPrint(SelectWorld[selWorld].WorldName, 3, 300, 310, XDepth::UI, XColor(0.6f, 1.f, 1.f));
         s_drawGameSaves();
 
-        SuperPrint("Select the slot to erase", 3, 300, 320 + (5 * 30), 1.0f, 0.7f, 0.7f);
+        SuperPrint("Select the slot to erase", 3, 300, 320 + (5 * 30), XDepth::UI, XColor(1.0f, 0.7f, 0.7f));
 
-        XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30), GFX.MCursor[0]);
+        XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30), XDepth::UI, GFX.MCursor[0]);
     }
 
     // Options Menu
     else if(MenuMode == MENU_OPTIONS)
     {
         int i = 0;
-        SuperPrint(g_mainMenu.controlsTitle, 3, 300, 350 + 30*i++);
+        SuperPrint(g_mainMenu.controlsTitle, 3, 300, 350 + 30*i++, XDepth::UI);
 #ifndef __ANDROID__
         if(resChanged)
-            SuperPrint("WINDOWED MODE", 3, 300, 350 + 30*i++);
+            SuperPrint("WINDOWED MODE", 3, 300, 350 + 30*i++, XDepth::UI);
         else
-            SuperPrint("FULLSCREEN MODE", 3, 300, 350 + 30*i++);
+            SuperPrint("FULLSCREEN MODE", 3, 300, 350 + 30*i++, XDepth::UI);
 #endif
-        SuperPrint("VIEW CREDITS", 3, 300, 350 + 30*i++);
-        XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30),
-                              GFX.MCursor[0].w, GFX.MCursor[0].h, GFX.MCursor[0], 0, 0);
+        SuperPrint("VIEW CREDITS", 3, 300, 350 + 30*i++, XDepth::UI);
+        XRender::renderTexture(300 - 20, 350 + (MenuCursor * 30), XDepth::UI, GFX.MCursor[0]);
     }
 
     // Player controls setup
@@ -1576,5 +1571,5 @@ void mainMenuDraw()
     }
 
     // Mouse cursor
-    XRender::renderTexture(int(SharedCursor.X), int(SharedCursor.Y), GFX.ECursor[2]);
+    XRender::renderTexture(int(SharedCursor.X), int(SharedCursor.Y), XDepth::Cursor, GFX.ECursor[2]);
 }

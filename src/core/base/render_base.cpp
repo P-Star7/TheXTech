@@ -685,11 +685,11 @@ void AbstractRender_t::drawBatteryStatus()
         XRender::setTargetTexture();
 
         XRender::offsetViewportIgnore(true);
-        XRender::renderRect(bx, by, bw - 4, bh, 0.f, 0.f, 0.f, alhpa, true);//Edge
-        XRender::renderRect(bx + 2, by + 2, bw - 8, bh - 4, r, g, b, alhpa, true);//Box
-        XRender::renderRect(bx + 36, by + 6, 4, 10, 0.f, 0.f, 0.f, alhpa, true);//Edge
-        XRender::renderRect(bx + 34, by + 8, 4, 6, r, g, b, alhpa, true);//Box
-        XRender::renderRect(bx + 4, by + 4, segments, 14, br, bg, bb, alhpaB / 2.f, true);//Level
+        XRender::renderRect(bx, by, bw - 4, bh, XDepth::Meta, XColor(0.f, 0.f, 0.f, alhpa), true);//Edge
+        XRender::renderRect(bx + 2, by + 2, bw - 8, bh - 4, XDepth::Meta, XColor(r, g, b, alhpa), true);//Box
+        XRender::renderRect(bx + 36, by + 6, 4, 10, XDepth::Meta, XColor(0.f, 0.f, 0.f, alhpa), true);//Edge
+        XRender::renderRect(bx + 34, by + 8, 4, 6, XDepth::Meta, XColor(r, g, b, alhpa), true);//Box
+        XRender::renderRect(bx + 4, by + 4, segments, 14, XDepth::Meta, XColor(br, bg, bb, alhpaB / 2.f), true);//Level
         XRender::offsetViewportIgnore(false);
 
         XRender::setTargetScreen();
@@ -701,14 +701,14 @@ void AbstractRender_t::drawBatteryStatus()
 
 // render features
 
-void AbstractRender_t::renderRect(int x, int y, int w, int h, float red, float green, float blue, float alpha, bool filled)
+void AbstractRender_t::renderRect(int x, int y, int w, int h, int16_t depth, XColor color, bool filled)
 {
 #ifdef USE_RENDER_BLOCKING
     SDL_assert(!m_blockRender);
 #endif
 
     RenderCall_t tempCall;
-    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(depth);
 
     call.type = RenderCallType::rect;
     call.xDst = x + m_viewport_offset_x;
@@ -716,10 +716,10 @@ void AbstractRender_t::renderRect(int x, int y, int w, int h, float red, float g
     call.wDst = w;
     call.hDst = h;
 
-    call.r = static_cast<unsigned char>(255.f * red);
-    call.g = static_cast<unsigned char>(255.f * green);
-    call.b = static_cast<unsigned char>(255.f * blue);
-    call.a = static_cast<unsigned char>(255.f * alpha);
+    call.r = color.r();
+    call.g = color.g();
+    call.b = color.b();
+    call.a = color.a();
 
     if(filled)
         call.features = RenderFeatures::filled;
@@ -727,17 +727,17 @@ void AbstractRender_t::renderRect(int x, int y, int w, int h, float red, float g
         call.features = 0;
 
     if(m_directRender)
-        executeRender(call, 0);
+        executeRender(call, depth);
 }
 
-void AbstractRender_t::renderRectBR(int _left, int _top, int _right, int _bottom, float red, float green, float blue, float alpha)
+void AbstractRender_t::renderRectBR(int _left, int _top, int _right, int _bottom, int16_t depth, XColor color)
 {
 #ifdef USE_RENDER_BLOCKING
     SDL_assert(!m_blockRender);
 #endif
 
     RenderCall_t tempCall;
-    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(depth);
 
     call.type = RenderCallType::rect;
     call.xDst = _left + m_viewport_offset_x;
@@ -745,18 +745,18 @@ void AbstractRender_t::renderRectBR(int _left, int _top, int _right, int _bottom
     call.wDst = _right - _left;
     call.hDst = _bottom - _top;
 
-    call.r = static_cast<unsigned char>(255.f * red);
-    call.g = static_cast<unsigned char>(255.f * green);
-    call.b = static_cast<unsigned char>(255.f * blue);
-    call.a = static_cast<unsigned char>(255.f * alpha);
+    call.r = color.r();
+    call.g = color.g();
+    call.b = color.b();
+    call.a = color.a();
 
     call.features = RenderFeatures::filled;
 
     if(m_directRender)
-        executeRender(call, 0);
+        executeRender(call, depth);
 }
 
-void AbstractRender_t::renderCircle(int cx, int cy, int radius, float red, float green, float blue, float alpha, bool filled)
+void AbstractRender_t::renderCircle(int cx, int cy, int radius, int16_t depth, XColor color, bool filled)
 {
 #ifdef USE_RENDER_BLOCKING
     SDL_assert(!m_blockRender);
@@ -766,17 +766,17 @@ void AbstractRender_t::renderCircle(int cx, int cy, int radius, float red, float
         return; // Nothing to draw
 
     RenderCall_t tempCall;
-    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(depth);
 
     call.type = RenderCallType::circle;
     call.xDst = cx + m_viewport_offset_x;
     call.yDst = cy + m_viewport_offset_y;
     call.radius = radius;
 
-    call.r = static_cast<unsigned char>(255.f * red);
-    call.g = static_cast<unsigned char>(255.f * green);
-    call.b = static_cast<unsigned char>(255.f * blue);
-    call.a = static_cast<unsigned char>(255.f * alpha);
+    call.r = color.r();
+    call.g = color.g();
+    call.b = color.b();
+    call.a = color.a();
 
     if(filled)
         call.features = RenderFeatures::filled;
@@ -784,10 +784,10 @@ void AbstractRender_t::renderCircle(int cx, int cy, int radius, float red, float
         call.features = 0;
 
     if(m_directRender)
-        executeRender(call, 0);
+        executeRender(call, depth);
 }
 
-void AbstractRender_t::renderCircleHole(int cx, int cy, int radius, float red, float green, float blue, float alpha)
+void AbstractRender_t::renderCircleHole(int cx, int cy, int radius, int16_t depth, XColor color)
 {
 #ifdef USE_RENDER_BLOCKING
     SDL_assert(!m_blockRender);
@@ -797,28 +797,28 @@ void AbstractRender_t::renderCircleHole(int cx, int cy, int radius, float red, f
         return; // Nothing to draw
 
     RenderCall_t tempCall;
-    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(depth);
 
     call.type = RenderCallType::circle_hole;
     call.xDst = cx + m_viewport_offset_x;
     call.yDst = cy + m_viewport_offset_y;
     call.radius = radius;
 
-    call.r = static_cast<unsigned char>(255.f * red);
-    call.g = static_cast<unsigned char>(255.f * green);
-    call.b = static_cast<unsigned char>(255.f * blue);
-    call.a = static_cast<unsigned char>(255.f * alpha);
+    call.r = color.r();
+    call.g = color.g();
+    call.b = color.b();
+    call.a = color.a();
 
     if(m_directRender)
-        executeRender(call, 0);
+        executeRender(call, depth);
 }
 
-void AbstractRender_t::renderTextureScaleEx(double xDstD, double yDstD, double wDstD, double hDstD,
+void AbstractRender_t::renderTextureScaleEx(double xDstD, double yDstD, double wDstD, double hDstD, int16_t depth,
                                        StdPicture &tx,
                                        int xSrc, int ySrc,
                                        int wSrc, int hSrc,
                                        double rotateAngle, FPoint_t *center, unsigned int flip,
-                                       float red, float green, float blue, float alpha)
+                                       XColor color)
 {
 #ifdef USE_RENDER_BLOCKING
     SDL_assert(!m_blockRender);
@@ -827,7 +827,7 @@ void AbstractRender_t::renderTextureScaleEx(double xDstD, double yDstD, double w
         return;
 
     RenderCall_t tempCall;
-    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(depth);
 
     call.type = RenderCallType::texture;
     call.texture = &tx;
@@ -842,10 +842,10 @@ void AbstractRender_t::renderTextureScaleEx(double xDstD, double yDstD, double w
     call.wSrc = wSrc;
     call.hSrc = hSrc;
 
-    call.r = static_cast<unsigned char>(255.f * red);
-    call.g = static_cast<unsigned char>(255.f * green);
-    call.b = static_cast<unsigned char>(255.f * blue);
-    call.a = static_cast<unsigned char>(255.f * alpha);
+    call.r = color.r();
+    call.g = color.g();
+    call.b = color.b();
+    call.a = color.a();
 
     call.features = (flip & 3) | RenderFeatures::color | RenderFeatures::src_rect
         | RenderFeatures::scaling;
@@ -860,8 +860,8 @@ void AbstractRender_t::renderTextureScaleEx(double xDstD, double yDstD, double w
         {
             double orig_offsetX = wDstD / 2 - center->x;
             double orig_offsetY = hDstD / 2 - center->y;
-            double sin_theta = -sin(rotateAngle * PI / 180.);
-            double cos_theta = cos(rotateAngle * PI / 180.);
+            double sin_theta = -sin(rotateAngle * 3.1415926 / 180.);
+            double cos_theta = cos(rotateAngle * 3.1415926 / 180.);
 
             double rot_offsetX = orig_offsetX * cos_theta - orig_offsetY * sin_theta;
             double rot_offsetY = orig_offsetX * sin_theta + orig_offsetY * cos_theta;
@@ -875,12 +875,12 @@ void AbstractRender_t::renderTextureScaleEx(double xDstD, double yDstD, double w
     }
 
     if(m_directRender)
-        executeRender(call, 0);
+        executeRender(call, depth);
 }
 
-void AbstractRender_t::renderTextureScale(double xDst, double yDst, double wDst, double hDst,
+void AbstractRender_t::renderTextureScale(double xDst, double yDst, double wDst, double hDst, int16_t depth,
                                      StdPicture &tx,
-                                     float red, float green, float blue, float alpha)
+                                     XColor color)
 {
 #ifdef USE_RENDER_BLOCKING
     SDL_assert(!m_blockRender);
@@ -890,7 +890,7 @@ void AbstractRender_t::renderTextureScale(double xDst, double yDst, double wDst,
         return;
 
     RenderCall_t tempCall;
-    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(depth);
 
     call.type = RenderCallType::texture;
     call.texture = &tx;
@@ -900,21 +900,21 @@ void AbstractRender_t::renderTextureScale(double xDst, double yDst, double wDst,
     call.wDst = Maths::iRound(wDst);
     call.hDst = Maths::iRound(hDst);
 
-    call.r = static_cast<unsigned char>(255.f * red);
-    call.g = static_cast<unsigned char>(255.f * green);
-    call.b = static_cast<unsigned char>(255.f * blue);
-    call.a = static_cast<unsigned char>(255.f * alpha);
+    call.r = color.r();
+    call.g = color.g();
+    call.b = color.b();
+    call.a = color.a();
 
     call.features = RenderFeatures::color | RenderFeatures::scaling;
 
     if(m_directRender)
-        executeRender(call, 0);
+        executeRender(call, depth);
 }
 
-void AbstractRender_t::renderTexture(double xDstD, double yDstD, double wDstD, double hDstD,
+void AbstractRender_t::renderTexture(double xDstD, double yDstD, double wDstD, double hDstD, int16_t depth,
                                 StdPicture &tx,
                                 int xSrc, int ySrc,
-                                float red, float green, float blue, float alpha)
+                                XColor color)
 {
 #ifdef USE_RENDER_BLOCKING
     SDL_assert(!m_blockRender);
@@ -928,7 +928,7 @@ void AbstractRender_t::renderTexture(double xDstD, double yDstD, double wDstD, d
     int hDst = Maths::iRound(hDstD);
 
     RenderCall_t tempCall;
-    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(depth);
 
     call.type = RenderCallType::texture;
     call.texture = &tx;
@@ -942,22 +942,22 @@ void AbstractRender_t::renderTexture(double xDstD, double yDstD, double wDstD, d
     call.xSrc = xSrc;
     call.ySrc = ySrc;
 
-    call.r = static_cast<unsigned char>(255.f * red);
-    call.g = static_cast<unsigned char>(255.f * green);
-    call.b = static_cast<unsigned char>(255.f * blue);
-    call.a = static_cast<unsigned char>(255.f * alpha);
+    call.r = color.r();
+    call.g = color.g();
+    call.b = color.b();
+    call.a = color.a();
 
     call.features = RenderFeatures::color | RenderFeatures::src_rect;
 
     if(m_directRender)
-        executeRender(call, 0);
+        executeRender(call, depth);
 }
 
-void AbstractRender_t::renderTextureFL(double xDstD, double yDstD, double wDstD, double hDstD,
+void AbstractRender_t::renderTextureFL(double xDstD, double yDstD, double wDstD, double hDstD, int16_t depth,
                                   StdPicture &tx,
                                   int xSrc, int ySrc,
                                   double rotateAngle, FPoint_t *center, unsigned int flip,
-                                  float red, float green, float blue, float alpha)
+                                  XColor color)
 {
 #ifdef USE_RENDER_BLOCKING
     SDL_assert(!m_blockRender);
@@ -971,7 +971,7 @@ void AbstractRender_t::renderTextureFL(double xDstD, double yDstD, double wDstD,
     int hDst = Maths::iRound(hDstD);
 
     RenderCall_t tempCall;
-    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(depth);
 
     call.type = RenderCallType::texture;
     call.texture = &tx;
@@ -985,12 +985,18 @@ void AbstractRender_t::renderTextureFL(double xDstD, double yDstD, double wDstD,
     call.wSrc = wDst;
     call.hSrc = hDst;
 
-    call.r = static_cast<unsigned char>(255.f * red);
-    call.g = static_cast<unsigned char>(255.f * green);
-    call.b = static_cast<unsigned char>(255.f * blue);
-    call.a = static_cast<unsigned char>(255.f * alpha);
+    call.features = (flip & 3) | RenderFeatures::src_rect;
 
-    call.features = (flip & 3) | RenderFeatures::color | RenderFeatures::src_rect;
+    if(color != XColor_None)
+    {
+        call.r = color.r();
+        call.g = color.g();
+        call.b = color.b();
+        call.a = color.a();
+
+        call.features |= RenderFeatures::color;
+    }
+
 
     if(rotateAngle != 0.)
     {
@@ -1002,8 +1008,8 @@ void AbstractRender_t::renderTextureFL(double xDstD, double yDstD, double wDstD,
         {
             double orig_offsetX = wDstD / 2 - center->x;
             double orig_offsetY = hDstD / 2 - center->y;
-            double sin_theta = -sin(rotateAngle * PI / 180.);
-            double cos_theta = cos(rotateAngle * PI / 180.);
+            double sin_theta = -sin(rotateAngle * 3.1415926 / 180.);
+            double cos_theta = cos(rotateAngle * 3.1415926 / 180.);
 
             double rot_offsetX = orig_offsetX * cos_theta - orig_offsetY * sin_theta;
             double rot_offsetY = orig_offsetX * sin_theta + orig_offsetY * cos_theta;
@@ -1017,12 +1023,12 @@ void AbstractRender_t::renderTextureFL(double xDstD, double yDstD, double wDstD,
     }
 
     if(m_directRender)
-        executeRender(call, 0);
+        executeRender(call, depth);
 }
 
-void AbstractRender_t::renderTexture(float xDst, float yDst,
+void AbstractRender_t::renderTexture(float xDst, float yDst, int16_t depth,
                                 StdPicture &tx,
-                                float red, float green, float blue, float alpha)
+                                XColor color)
 {
 #ifdef USE_RENDER_BLOCKING
     SDL_assert(!m_blockRender);
@@ -1032,7 +1038,7 @@ void AbstractRender_t::renderTexture(float xDst, float yDst,
         return;
 
     RenderCall_t tempCall;
-    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(0);
+    RenderCall_t& call = m_directRender ? tempCall : m_renderQueue.push(depth);
 
     call.type = RenderCallType::texture;
     call.texture = &tx;
@@ -1040,12 +1046,22 @@ void AbstractRender_t::renderTexture(float xDst, float yDst,
     call.xDst = Maths::iRound(xDst) + m_viewport_offset_x;
     call.yDst = Maths::iRound(yDst) + m_viewport_offset_y;
 
-    call.r = static_cast<unsigned char>(255.f * red);
-    call.g = static_cast<unsigned char>(255.f * green);
-    call.b = static_cast<unsigned char>(255.f * blue);
-    call.a = static_cast<unsigned char>(255.f * alpha);
+    if(color != XColor_None)
+    {
+        call.r = color.r();
+        call.g = color.g();
+        call.b = color.b();
+        call.a = color.a();
 
-    call.features = RenderFeatures::color;
+        call.features = RenderFeatures::color;
+    }
+    else
+    {
+        call.features = 0;
+    }
+
+    if(m_directRender)
+        executeRender(call, depth);
 }
 
 /* --------------- Screenshots and GIF recording (not for Emscripten!) ----------------- */
@@ -1339,13 +1355,13 @@ void GifRecorder::drawRecCircle()
 
     if(doFinalize)
     {
-        m_self->renderCircle(50, 50, 20, 0.f, 0.6f, 0.f, fadeValue, true);
-        SuperPrint("SAVING", 3, 2, 80, 0.f, 0.6f, 0.f, fadeValue);
+        m_self->renderCircle(50, 50, 20, XDepth::Meta, XColor(0.f, 0.6f, 0.f, fadeValue), true);
+        SuperPrint("SAVING", 3, 2, 80, XDepth::Meta, XColor(0.f, 0.6f, 0.f, fadeValue));
     }
     else
     {
-        m_self->renderCircle(50, 50, 20, 1.f, 0.f, 0.f, fadeValue, true);
-        SuperPrint("REC", 3, 25, 80, 1.f, 0.f, 0.f, fadeValue);
+        m_self->renderCircle(50, 50, 20, XDepth::Meta, XColor(1.f, 0.f, 0.f, fadeValue), true);
+        SuperPrint("REC", 3, 25, 80, XDepth::Meta, XColor(1.f, 0.f, 0.f, fadeValue));
     }
 
     m_self->offsetViewportIgnore(false);

@@ -33,6 +33,7 @@
 #include "../main/trees.h"
 #include "../npc_id.h"
 #include "../layers.h"
+#include "npc/active_npcs.h"
 
 #include <Utils/maths.h>
 
@@ -226,6 +227,7 @@ void UpdateNPCs()
         if(NPC[A].Generator)
         {
             NPC[A].Active = false;
+            ActiveNPCs.remove(A);
             if(!NPC[A].Hidden)
             {
                 NPC[A].TimeLeft = 0;
@@ -240,9 +242,9 @@ void UpdateNPCs()
                     if(NPC[A].GeneratorTime >= NPC[A].GeneratorTimeMax * 6.5f)
                     {
                         tempBool = false;
-                        for(B = 1; B <= numNPCs; B++)
+                        for(uint16_t B : ActiveNPCs)
                         {
-                            if(B != A && NPC[B].Active && NPC[B].Type != 57)
+                            if(B != A && /*NPC[B].Active &&*/ NPC[B].Type != 57)
                             {
                                 if(CheckCollision(NPC[A].Location, NPC[B].Location))
                                     tempBool = true;
@@ -403,6 +405,7 @@ void UpdateNPCs()
             {
                 NPC[A].TimeLeft = 100;
                 NPC[A].Active = true;
+                ActiveNPCs.insert(A);
                 NPC[A].JustActivated = 0;
             }
         }
@@ -439,6 +442,7 @@ void UpdateNPCs()
                             SDL_assert_release(numAct <= maxNPCs);
                             newAct[numAct] = B;
                             NPC[B].Active = true;
+                            ActiveNPCs.insert(B);
                             NPC[B].TimeLeft = NPC[A].TimeLeft;
                             NPC[B].JustActivated = 1;
                             NPC[B].Section = NPC[A].Section;
@@ -482,6 +486,7 @@ void UpdateNPCs()
                                     SDL_assert_release(numAct <= maxNPCs);
                                     newAct[numAct] = B;
                                     NPC[B].Active = true;
+                                    ActiveNPCs.insert(B);
                                     NPC[B].TimeLeft = NPC[newAct[C]].TimeLeft;
                                     NPC[B].JustActivated = 1;
                                     NPC[B].Section = NPC[newAct[C]].Section;
@@ -500,9 +505,9 @@ void UpdateNPCs()
 
             if(NPC[A].Type == 208)
             {
-                for(B = 1; B <= numNPCs; B++)
+                for(uint16_t B : ActiveNPCs)
                 {
-                    if(NPC[B].Type != 208 && NPC[B].Effect == 0 && NPC[B].Active)
+                    if(NPC[B].Type != 208 && NPC[B].Effect == 0 /*&& NPC[B].Active*/)
                     {
                         if(!NPCNoClipping[NPC[B].Type])
                         {
@@ -530,6 +535,7 @@ void UpdateNPCs()
         if(NPC[A].Type == 60 || NPC[A].Type == 62 || NPC[A].Type == 64 || NPC[A].Type == 66)
         {
             NPC[A].Active = true;
+            ActiveNPCs.insert(A);
             NPC[A].TimeLeft = 100;
         }
 
@@ -698,16 +704,19 @@ void UpdateNPCs()
                     {
                         NPC[A].Active = false;
                         NPC[A].TimeLeft = 0;
+                        ActiveNPCs.remove(A);
                     }
                     else if(Maths::iRound(NPC[A].Direction) == -1 && NPC[A].Location.X < Player[NPC[A].JustActivated].Location.X)
                     {
                         NPC[A].Active = false;
                         NPC[A].TimeLeft = 0;
+                        ActiveNPCs.remove(A);
                     }
                     else if(Maths::iRound(NPC[A].Direction) == 1 && NPC[A].Location.X > Player[NPC[A].JustActivated].Location.X)
                     {
                         NPC[A].Active = false;
                         NPC[A].TimeLeft = 0;
+                        ActiveNPCs.remove(A);
                     }
                     else if(NPCIsCheep[NPC[A].Type] && Maths::iRound(NPC[A].Special) == 2)
                     {
@@ -1072,9 +1081,9 @@ void UpdateNPCs()
                              NPC[A].Type == 49 || NPC[A].Type == 134 || (NPC[A].Type >= 154 && NPC[A].Type <= 157) ||
                              NPC[A].Type == 31 || NPC[A].Type == 240 || NPC[A].Type == 278 || NPC[A].Type == 279 || NPC[A].Type == 292))
                         {
-                            for(B = 1; B <= numNPCs; B++)
+                            for(uint16_t B : ActiveNPCs)
                             {
-                                if(B != A && NPC[B].Active &&
+                                if(B != A && /*NPC[B].Active &&*/
                                    (NPC[B].HoldingPlayer == 0 || (BattleMode && NPC[B].HoldingPlayer != NPC[A].HoldingPlayer)) &&
                                    !NPCIsABonus[NPC[B].Type] &&
                                    (NPC[B].Type != 13  || (BattleMode && NPC[B].CantHurtPlayer != NPC[A].HoldingPlayer)) &&
@@ -3176,9 +3185,9 @@ void UpdateNPCs()
 
                             if(!(NPC[A].Type >= 79 && NPC[A].Type <= 83) && !NPC[A].Inert)
                             {
-                                for(int C = 1; C <= numNPCs; C++)
+                                for(uint16_t C : ActiveNPCs)
                                 {
-                                    if(A != C && NPC[C].Active && !NPC[C].Projectile)
+                                    if(A != C /*&& NPC[C].Active*/ && !NPC[C].Projectile)
                                     {
                                         if(NPC[C].Killed == 0 && NPC[C].standingOnPlayer == 0 && NPC[C].HoldingPlayer == 0 &&
                                            !NPCNoClipping[NPC[C].Type] && NPC[C].Effect == 0 && !NPC[C].Inert) // And Not NPCIsABlock(NPC(C).Type) Then
@@ -3259,9 +3268,9 @@ void UpdateNPCs()
                                 NPC[A].Type != 282 && NPC[A].Type != 288 && NPC[A].Type != 289)
                             {
 
-                                for(B = 1; B <= numNPCs; B++)
+                                for(uint16_t B : ActiveNPCs)
                                 {
-                                    if(NPC[B].Active)
+                                    if(true) // if(NPC[B].Active)
                                     {
                                         if(!NPCIsACoin[NPC[B].Type])
                                         {

@@ -29,6 +29,7 @@
 #include "../graphics.h"
 #include "../npc_id.h"
 #include "../layers.h"
+#include "npc/active_npcs.h"
 
 #include <Logger/logger.h>
 
@@ -542,15 +543,15 @@ void NPCHit(int A, int B, int C)
     // Mother Brain
     else if(NPC[A].Type == NPCID_MOTHERBRAIN)
     {
-        int D = 0;
+        // int D = 0;
         bool tempBool;
         tempBool = false;
 
-        for(D = 1; D <= numNPCs; D++)
+        for(uint16_t D : ActiveNPCs)
         {
             if(NPC[D].Type == 208)
             {
-                if(NPC[D].Active)
+                // if(NPC[D].Active)
                 {
                     if(NPC[D].Section == NPC[A].Section)
                     {
@@ -1896,6 +1897,7 @@ void NPCHit(int A, int B, int C)
                     NPC[A].CantHurtPlayer = 0;
                     NPC[A].Reset[1] = false;
                     NPC[A].Reset[2] = false;
+                    ActiveNPCs.remove(A);
                 }
             }
         }

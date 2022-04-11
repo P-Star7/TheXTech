@@ -34,6 +34,7 @@
 #include "sound.h"
 #include "collision.h"
 #include "npc.h"
+#include "npc/active_npcs.h"
 #include "blocks.h"
 #include "sorting.h"
 #include "player.h"
@@ -2409,6 +2410,7 @@ void zTestLevel(bool magicHand, bool interProcess)
         // If .Generator = True Then
         n.TimeLeft = 0;
         n.Active = false;
+        ActiveNPCs.remove(A);
         // End If
     }
 

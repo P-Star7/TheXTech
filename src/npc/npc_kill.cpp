@@ -30,6 +30,8 @@
 #include "../controls.h"
 #include "../layers.h"
 
+#include "npc/active_npcs.h"
+
 void KillNPC(int A, int B)
 {
     // ------+  KILL CODES  +-------
@@ -1094,9 +1096,9 @@ void KillNPC(int A, int B)
                 }
                 else
                 {
-                    for(C = 1; C <= numNPCs; C++)
+                    for(int C : ActiveNPCs)
                     {
-                        if(NPC[C].Type == 39 && NPC[C].Active && C != A)
+                        if(NPC[C].Type == 39 /*&& NPC[C].Active*/ && C != A)
                             DontResetMusic = true;
                     }
 
@@ -1304,9 +1306,9 @@ void KillNPC(int A, int B)
                 {
                     NewEffect(14 , NPC[A].Location);
 
-                    for(B = 1; B <= numNPCs; B++)
+                    for(int B : ActiveNPCs)
                     {
-                        if(NPC[B].Type == 15 && NPC[B].Active && B != A && NPC[B].Killed == 0)
+                        if(NPC[B].Type == 15 /*&& NPC[B].Active*/ && B != A && NPC[B].Killed == 0)
                             DontResetMusic = true;
                     }
 

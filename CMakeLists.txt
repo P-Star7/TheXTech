@@ -392,6 +392,7 @@ set(THEXTECH_SRC
     src/npc/npc_update.cpp
     src/npc/npc_frames.cpp
     src/npc/npc_bonus.cpp
+    src/npc/active_npcs.cpp
     src/player/player_update.cpp
 )
 

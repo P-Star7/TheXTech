@@ -25,7 +25,10 @@
 #include "../graphics.h"
 #include "../collision.h"
 #include "../editor.h"
+
 #include "../npc.h"
+#include "npc/active_npcs.h"
+
 #include "../gfx.h"
 #include "../layers.h"
 #include "../main/menu_main.h"
@@ -355,6 +358,7 @@ void UpdateGraphics(bool skipRepaint)
 //                            if(nPlay.Online == true && nPlay.NPCWaitCount >= 10 && nPlay.Mode == 0)
 //                                timeStr += "2b" + std::to_string(A) + LB;
                             NPC[A].Active = true;
+                            ActiveNPCs.insert(A);
                         }
                         NPC[A].Reset[1] = false;
                         NPC[A].Reset[2] = false;
@@ -985,6 +989,7 @@ void UpdateGraphics(bool skipRepaint)
 //                            if(nPlay.Online == true && nPlay.NPCWaitCount >= 10 && nPlay.Mode == 0)
 //                                timeStr += "2b" + std::to_string(A) + LB;
                             NPC[A].Active = true;
+                            ActiveNPCs.insert(A);
                         }
                         NPC[A].Reset[1] = false;
                         NPC[A].Reset[2] = false;
@@ -1504,6 +1509,7 @@ void UpdateGraphics(bool skipRepaint)
 //                                if(nPlay.Online == true && nPlay.NPCWaitCount >= 10 && nPlay.Mode == 0)
 //                                    timeStr += "2b" + std::to_string(A) + LB;
                             NPC[A].Active = true;
+                            ActiveNPCs.insert(A);
                         }
 
                         NPC[A].Reset[1] = false;
@@ -1555,6 +1561,7 @@ void UpdateGraphics(bool skipRepaint)
 //                        if(nPlay.Online == true && nPlay.NPCWaitCount >= 10 && nPlay.Mode == 0)
 //                            timeStr += "2b" + std::to_string(A) + LB;
                         NPC[A].Active = true;
+                        ActiveNPCs.insert(A);
                     }
                     NPC[A].Reset[1] = false;
                     NPC[A].Reset[2] = false;
@@ -1758,6 +1765,7 @@ void UpdateGraphics(bool skipRepaint)
 //                                if(nPlay.Online == true && nPlay.NPCWaitCount >= 10 && nPlay.Mode == 0)
 //                                    timeStr += "2b" + std::to_string(A) + LB;
                                 NPC[A].Active = true;
+                                ActiveNPCs.insert(A);
                             }
                             NPC[A].Reset[1] = false;
                             NPC[A].Reset[2] = false;
@@ -1994,6 +2002,7 @@ void UpdateGraphics(bool skipRepaint)
 //                                if(nPlay.Online == true && nPlay.NPCWaitCount >= 10 && nPlay.Mode == 0)
 //                                    timeStr += "2b" + std::to_string(A) + LB;
                                 NPC[A].Active = true;
+                                ActiveNPCs.insert(A);
                             }
                             NPC[A].Reset[1] = false;
                             NPC[A].Reset[2] = false;
@@ -2192,6 +2201,7 @@ void UpdateGraphics(bool skipRepaint)
 //                                    if(nPlay.Online == true && nPlay.NPCWaitCount >= 10 && nPlay.Mode == 0)
 //                                        timeStr += "2b" + std::to_string(A) + LB;
                                     NPC[A].Active = true;
+                                    ActiveNPCs.insert(A);
                                 }
 
                                 NPC[A].Reset[1] = false;

@@ -37,6 +37,8 @@
 #include "blocks.h"
 #include "main/trees.h"
 
+#include "npc/active_npcs.h"
+
 int numLayers = 0;
 RangeArr<Layer_t, 0, maxLayers> Layer;
 
@@ -396,6 +398,7 @@ void ShowLayer(layerindex_t L, bool NoEffect)
             {
                 NPC[A].Active = true;
                 NPC[A].TimeLeft = 1;
+                ActiveNPCs.insert(A);
             }
             CheckSectionNPC(A);
     }
@@ -1412,6 +1415,11 @@ void syncLayers_NPC(int npc)
         else
             Layer[layer].NPCs.erase(npc);
     }
+
+    if(NPC[npc].Active && npc <= numNPCs)
+        ActiveNPCs.insert((uint16_t)npc);
+    else
+        ActiveNPCs.remove((uint16_t)npc);
 }
 
 void syncLayers_AllBGOs()

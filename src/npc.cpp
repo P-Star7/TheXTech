@@ -34,6 +34,7 @@
 #include "main/trees.h"
 #include "core/events.h"
 #include "npc_id.h"
+#include "npc/active_npcs.h"
 #include "layers.h"
 
 #include <Utils/maths.h>
@@ -137,6 +138,7 @@ void Deactivate(int A)
             NPC[A].Pinched4 = 0;
             NPC[A].Pinched = 0;
             NPC[A].MovingPinched = 0;
+            ActiveNPCs.remove(A);
         }
     }
     else if(NPCIsAnExit[NPC[A].Type])
@@ -180,9 +182,9 @@ void Bomb(Location_t Location, int Game, int ImmunePlayer)
     X = Location.X + Location.Width / 2.0;
     Y = Location.Y + Location.Height / 2.0;
 
-    for(i = 1; i <= numNPCs; i++)
+    for(int i : ActiveNPCs)
     {
-        if(!NPC[i].Hidden && NPC[i].Active && !NPC[i].Inert && !NPC[i].Generator && !NPCIsABonus[NPC[i].Type])
+        if(!NPC[i].Hidden /*&& NPC[i].Active*/ && !NPC[i].Inert && !NPC[i].Generator && !NPCIsABonus[NPC[i].Type])
         {
             if(NPC[i].Type != 13 && NPC[i].Type != 291)
             {
@@ -324,9 +326,13 @@ void TurnNPCsIntoCoins()
                     NPC[A].Killed = 9;
                     NPC[A].Location.Height = 0;
                     NPC[A].Active = false;
+                    ActiveNPCs.remove(A);
                 }
                 else if(NPC[A].Type == 197 || NPC[A].Type == 260 || NPC[A].Type == 259)
+                {
                     NPC[A].Active = false;
+                    ActiveNPCs.remove(A);
+                }
             }
         }
         else if(NPC[A].Generator)
@@ -350,12 +356,12 @@ void SkullRide(int A, bool reEnable)
 
     int spec = reEnable ? 2 : 0;
 
-    for(int B = 1; B <= numNPCs; B++) // Recursively activate all neihbour skull-ride segments
+    for(int B : ActiveNPCs) // Recursively activate all neihbour skull-ride segments
     {
         auto &npc = NPC[B];
         if(npc.Type == 190)
         {
-            if(npc.Active)
+            // if(npc.Active)
             {
                 if(npc.Special == spec)
                 {
@@ -408,12 +414,12 @@ void SkullRideDone(int A, const Location_t &alignAt)
     loc.Height += 30;
     loc.Y -= 15;
 
-    for(int B = 1; B <= numNPCs; B++) // Recursively DE-activate all neighbour skull-ride segments
+    for(int B : ActiveNPCs) // Recursively DE-activate all neighbour skull-ride segments
     {
         auto &npc = NPC[B];
         if(npc.Type == 190)
         {
-            if(npc.Active)
+            // if(npc.Active)
             {
                 if(npc.Special == 1.0)
                 {
@@ -627,10 +633,10 @@ void NPCSpecial(int A)
             tempLocation.Height = 1;
             tempBool = false;
 
-            for(int i = 1; i <= numNPCs; i++)
+            for(int i : ActiveNPCs)
             {
                 auto &n = NPC[i];
-                if(n.Active && !n.Hidden && NPCIsAVine[n.Type] && CheckCollision(tempLocation, n.Location))
+                if(/*n.Active &&*/ !n.Hidden && NPCIsAVine[n.Type] && CheckCollision(tempLocation, n.Location))
                 {
                     tempBool = true;
                     break;
@@ -1772,10 +1778,10 @@ void NPCSpecial(int A)
     }
     else if(npc.Type == NPCID_LOCKDOOR)
     {
-        for(int i = 1; i <= numNPCs; i++)
+        for(int i : ActiveNPCs)
         {
             auto &n = NPC[i];
-            if(n.Type == NPCID_KEY && n.Active && n.HoldingPlayer != 0 && CheckCollision(npc.Location, n.Location))
+            if(n.Type == NPCID_KEY /*&& n.Active*/ && n.HoldingPlayer != 0 && CheckCollision(npc.Location, n.Location))
             {
                 n.Killed = 9;
                 NewEffect(10, n.Location);
@@ -3038,9 +3044,9 @@ void SpecialNPC(int A)
         NPC[A].Location.SpeedY += (playerVCenter - NPC[A].Location.Y + NPC[A].Location.Height / 2.0) * 0.004;
 
 
-        for(B = 1; B <= numNPCs; B++)
+        for(uint16_t B : ActiveNPCs)
         {
-            if(NPC[B].Active)
+            // if(NPC[B].Active)
             {
                 if(NPCIsACoin[NPC[B].Type])
                 {
@@ -3065,9 +3071,9 @@ void SpecialNPC(int A)
                 NPC[A].Killed = 9;
                 Player[NPC[A].Special5].FrameCount = 115;
                 PlaySound(SFX_Grab2);
-                for(B = 1; B <= numNPCs; B++)
+                for(uint16_t B : ActiveNPCs)
                 {
-                    if(NPC[B].Active)
+                    // if(NPC[B].Active)
                     {
                         if(NPCIsACoin[NPC[B].Type])
                         {
@@ -5164,9 +5170,9 @@ void SpecialNPC(int A)
             {
                 if(fEqual((float)NPC[A].Location.SpeedY, Physics.NPCGravity))
                 {
-                    for(B = 1; B <= numNPCs; B++)
+                    for(uint16_t B : ActiveNPCs)
                     {
-                        if(NPC[B].Active && NPC[B].Section == NPC[A].Section && !NPC[B].Hidden && NPC[B].HoldingPlayer == 0)
+                        if(/*NPC[B].Active &&*/ NPC[B].Section == NPC[A].Section && !NPC[B].Hidden && NPC[B].HoldingPlayer == 0)
                         {
                             if(NPC[B].Type >= 113 && NPC[B].Type <= 116)
                             {

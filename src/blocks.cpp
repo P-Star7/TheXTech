@@ -30,6 +30,7 @@
 #include "collision.h"
 #include "npc.h"
 #include "npc_id.h"
+#include "npc/active_npcs.h"
 #include "player.h"
 #include "sorting.h"
 #include "layers.h"
@@ -1925,9 +1926,9 @@ void UpdateBlocks()
 
         if(ib.ShakeY3 != 0)
         {
-            for(auto B = 1; B <= numNPCs; B++)
+            for(auto B : ActiveNPCs)
             {
-                if(NPC[B].Active)
+                // if(NPC[B].Active)
                 {
                     if(NPC[B].Killed == 0 && NPC[B].Effect == 0 && NPC[B].HoldingPlayer == 0 && (!NPCNoClipping[NPC[B].Type] || NPCIsACoin[NPC[B].Type]))
                     {
@@ -2285,9 +2286,9 @@ void PowBlock()
         }
     }
 
-    for(A = 1; A <= numNPCs; A++)
+    for(int A : ActiveNPCs)
     {
-        if(NPC[A].Active)
+        // if(NPC[A].Active)
         {
             if(NPCIsACoin[NPC[A].Type])
             {

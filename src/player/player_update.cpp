@@ -29,6 +29,7 @@
 #include "../sound.h"
 #include "../blocks.h"
 #include "../npc.h"
+#include "npc/active_npcs.h"
 #include "../effect.h"
 #include "../layers.h"
 #include "../editor.h"
@@ -511,9 +512,9 @@ void UpdatePlayer()
                             }
                         }
 
-                        for(int numNPCsMax2 = numNPCs, B = 1; B <= numNPCsMax2; B++)
+                        for(uint16_t B : ActiveNPCs)
                         {
-                            if(NPCIsABlock[NPC[B].Type] && !NPCStandsOnPlayer[NPC[B].Type] && NPC[B].Active && NPC[B].Type != 56)
+                            if(NPCIsABlock[NPC[B].Type] && !NPCStandsOnPlayer[NPC[B].Type] /*&& NPC[B].Active*/ && NPC[B].Type != 56)
                             {
                                 if(CheckCollision(tempLocation, NPC[B].Location))
                                 {
@@ -967,9 +968,9 @@ void UpdatePlayer()
                         Player[A].FairyTime -= 1;
                     if(Player[A].FairyTime != -1 && Player[A].FairyTime < 20 && Player[A].Character == 5)
                     {
-                        for(int numNPCsMax4 = numNPCs, Bi = 1; Bi <= numNPCsMax4; Bi++)
+                        for(uint16_t Bi : ActiveNPCs)
                         {
-                            if(NPC[Bi].Active && !NPC[Bi].Hidden && NPCIsAVine[NPC[Bi].Type])
+                            if(/*NPC[Bi].Active &&*/ !NPC[Bi].Hidden && NPCIsAVine[NPC[Bi].Type])
                             {
                                 tempLocation = NPC[Bi].Location;
                                 tempLocation.Width += 32;
@@ -3185,9 +3186,13 @@ void UpdatePlayer()
                 tempHit = false; // Used for JUMP detection
                 tempHit2 = false;
 
-                for(int tempNumNPCsMax = numNPCs, B = 1; B <= tempNumNPCsMax; B++)
+                int tempNumNPCsMax = numNPCs;
+                for(uint16_t B : ActiveNPCs)
                 {
-                    if(NPC[B].Active && NPC[B].Killed == 0 && NPC[B].Effect != 5 && NPC[B].Effect != 6)
+                    if(B > tempNumNPCsMax)
+                        break;
+
+                    if(/*NPC[B].Active &&*/ NPC[B].Killed == 0 && NPC[B].Effect != 5 && NPC[B].Effect != 6)
                     {
                         // If Not (NPC(B).Type = 17 And NPC(B).CantHurt > 0) And Not (.Mount = 2 And NPC(B).Type = 56) And Not NPC(B).standingOnPlayer = A And Not NPC(B).Type = 197 And Not NPC(B).Type = 237 Then
                         if(!(Player[A].Mount == 2 && NPC[B].Type == 56) &&

@@ -43,7 +43,7 @@
 #include <PGE_File_Formats/file_formats.h>
 
 #include "global_dirs.h"
-
+#include "npc/active_npcs.h"
 
 void bgoApplyZMode(Background_t *bgo, int smbx64sp)
 {
@@ -852,6 +852,7 @@ void ClearLevel()
     UnloadCustomGFX();
     doShakeScreenClear();
     treeLevelCleanAll();
+    ActiveNPCs.reset();
 
     AutoUseModern = false;
 

@@ -33,6 +33,7 @@
 #include "../graphics.h"
 #include "../blocks.h"
 #include "../npc.h"
+#include "npc/active_npcs.h"
 #include "../layers.h"
 #include "../player.h"
 #include "../collision.h"
@@ -109,9 +110,9 @@ static void updateIntroLevelActivity()
                 tempLocation.Y = p.Location.Y + p.Location.Height - 22;
                 tempLocation.X = p.Location.X + p.Location.Width;
 
-                For(B, 1, numNPCs)
+                for(uint16_t B : ActiveNPCs)
                 {
-                    if(NPC[B].Active && !NPCIsABonus[NPC[B].Type] &&
+                    if(/*NPC[B].Active &&*/ !NPCIsABonus[NPC[B].Type] &&
                        !NPCWontHurt[NPC[B].Type] && NPC[B].HoldingPlayer == 0)
                     {
                         if(CheckCollision(tempLocation, NPC[B].Location))
@@ -140,9 +141,9 @@ static void updateIntroLevelActivity()
                 tempLocation.Y = p.Location.Y + 4;
                 tempLocation.X = p.Location.X + p.Location.Width;
 
-                For(B, 1, numNPCs)
+                for(uint16_t B : ActiveNPCs)
                 {
-                    if(NPC[B].Active && !NPCIsABonus[NPC[B].Type] &&
+                    if(/*NPC[B].Active &&*/ !NPCIsABonus[NPC[B].Type] &&
                       !NPCWontHurt[NPC[B].Type] && NPC[B].HoldingPlayer == 0)
                     {
                         if(CheckCollision(tempLocation, NPC[B].Location))
@@ -165,9 +166,9 @@ static void updateIntroLevelActivity()
                     tempLocation.Y = level[0].Y;
                     tempLocation.X = p.Location.X;
 
-                    For(B, 1, numNPCs)
+                    for(uint16_t B : ActiveNPCs)
                     {
-                        if(NPC[B].Active && !NPCIsABonus[NPC[B].Type] &&
+                        if(/*NPC[B].Active &&*/ !NPCIsABonus[NPC[B].Type] &&
                            !NPCWontHurt[NPC[B].Type] && NPC[B].HoldingPlayer == 0)
                         {
                             if(CheckCollision(tempLocation, NPC[B].Location))
@@ -186,9 +187,9 @@ static void updateIntroLevelActivity()
                     tempLocation.Y = p.Location.Y;
                     tempLocation.X = p.Location.X;
 
-                    For(B, 1, numNPCs)
+                    for(uint16_t B : ActiveNPCs)
                     {
-                        if(NPC[B].Active && !NPCIsABonus[NPC[B].Type] &&
+                        if(/*NPC[B].Active &&*/ !NPCIsABonus[NPC[B].Type] &&
                            !NPCWontHurt[NPC[B].Type] && NPC[B].HoldingPlayer == 0)
                         {
                             if(CheckCollision(tempLocation, NPC[B].Location))
@@ -533,9 +534,9 @@ void MenuLoop()
             Effect[numEffects].Location.SpeedY = dRand() * 4 - 2;
         }
 
-        For(A, 1, numNPCs)
+        for(uint16_t A : ActiveNPCs)
         {
-            if(NPC[A].Active)
+            // if(NPC[A].Active)
             {
                 if(CheckCollision(newLoc(SharedCursor.X - vScreenX[1], SharedCursor.Y - vScreenY[1]), NPC[A].Location))
                 {

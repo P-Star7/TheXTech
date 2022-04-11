@@ -40,6 +40,7 @@
 #include "../effect.h"
 #include "../player.h"
 #include "../npc.h"
+#include "npc/active_npcs.h"
 #include "../layers.h"
 #include "../controls.h"
 #include "../game_main.h"
@@ -216,9 +217,9 @@ static void fairyMagic()
 
 static void iceAge()
 {
-    for(int C = 1; C <= numNPCs; C++)
+    for(int C : ActiveNPCs)
     {
-        if(NPC[C].Active)
+        // if(NPC[C].Active)
         {
             if(!NPCNoIceBall[NPC[C].Type] && NPC[C].Type != 263 && !NPCIsABonus[NPC[C].Type])
             {
@@ -1128,9 +1129,9 @@ static void warioTime()
 {
     Location_t tempLocation;
 
-    for(int B = 1; B <= numNPCs; B++)
+    for(int B : ActiveNPCs)
     {
-        if(NPC[B].Active)
+        // if(NPC[B].Active)
         {
             if(!NPCWontHurt[NPC[B].Type] &&
                !NPCIsABlock[NPC[B].Type] &&

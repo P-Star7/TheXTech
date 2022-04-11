@@ -31,6 +31,7 @@
 #include "graphics.h"
 #include "collision.h"
 #include "npc.h"
+#include "npc/active_npcs.h"
 #include "sound.h"
 #include "game_main.h"
 #include "effect.h"
@@ -2354,9 +2355,12 @@ void TailSwipe(const int plr, bool boo, bool Stab, int StabDir)
         }
     }
 
-    for(int numNPCsMax5 = numNPCs, A = 1; A <= numNPCsMax5; A++)
+    int numNPCsMax5 = numNPCs;
+    for(uint16_t A : ActiveNPCs)
     {
-        if(NPC[A].Active && NPC[A].Effect == 0 && !(NPCIsAnExit[NPC[A].Type] || (NPCIsACoin[NPC[A].Type] && !Stab)) &&
+        if(A > numNPCsMax5)
+            break;
+        if(/*NPC[A].Active &&*/ NPC[A].Effect == 0 && !(NPCIsAnExit[NPC[A].Type] || (NPCIsACoin[NPC[A].Type] && !Stab)) &&
             NPC[A].CantHurtPlayer != plr && !(p.StandingOnNPC == A && p.ShellSurf))
         {
             if(NPC[A].Type != 13 && NPC[A].Type != 265 && !(NPC[A].Type == 17 && NPC[A].Projectile) &&
@@ -2702,6 +2706,7 @@ void YoshiSpit(const int A)
             NPC[p.YoshiNPC].Location.SpeedX = 0;
             NPC[p.YoshiNPC].Location.SpeedY = 0;
 
+            ActiveNPCs.insert(p.YoshiNPC);
 
 
             if(NPC[p.YoshiNPC].Type == 45)
@@ -2766,9 +2771,12 @@ void YoshiPound(const int A, int mount, bool BreakBlocks)
         tempLocation.Height = 32;
         tempLocation.Y = p.Location.Y + p.Location.Height - 16;
 
-        for(int numNPCsMax7 = numNPCs, B = 1; B <= numNPCsMax7; B++)
+        int numNPCsMax7 = numNPCs;
+        for(uint16_t B : ActiveNPCs)
         {
-            if(!NPC[B].Hidden && NPC[B].Active && NPC[B].Effect == 0)
+            if(B > numNPCsMax7)
+                break;
+            if(!NPC[B].Hidden && /*NPC[B].Active &&*/ NPC[B].Effect == 0)
             {
                 tempLocation2 = NPC[B].Location;
                 tempLocation2.Y += tempLocation2.Height - 4;
@@ -3487,6 +3495,7 @@ void YoshiEatCode(const int A)
                 NPC[p.YoshiNPC].Effect = 6;
                 NPC[p.YoshiNPC].Effect2 = A;
                 NPC[p.YoshiNPC].Active = false;
+                ActiveNPCs.remove(p.YoshiNPC);
 
                 if(NPC[p.YoshiNPC].Type == 49)
                 {
@@ -3509,6 +3518,7 @@ void YoshiEatCode(const int A)
                 NPC[p.YoshiNPC].Effect = 6;
                 NPC[p.YoshiNPC].Effect2 = A;
                 NPC[p.YoshiNPC].Active = false;
+                ActiveNPCs.remove(p.YoshiNPC);
             }
             else if(p.MountType == 8 && !NPCIsABonus[NPC[p.YoshiNPC].Type])
             {
@@ -3522,6 +3532,7 @@ void YoshiEatCode(const int A)
                 NPC[p.YoshiNPC].Effect = 6;
                 NPC[p.YoshiNPC].Effect2 = A;
                 NPC[p.YoshiNPC].Active = false;
+                ActiveNPCs.remove(p.YoshiNPC);
             }
             else
             {
@@ -4038,9 +4049,9 @@ void PowerUps(const int A)
 
     if(p.State == 6 && p.Character == 4 && p.Controls.Run && p.RunRelease)
     {
-        for(int numNPCsMax11 = numNPCs, B = 1; B <= numNPCsMax11; B++)
+        for(uint16_t B : ActiveNPCs)
         {
-            if(NPC[B].Active)
+            // if(NPC[B].Active)
             {
                 if(NPC[B].Type == 292)
                 {
